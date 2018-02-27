@@ -2782,13 +2782,13 @@ ab_test3 <- ab_test3 %>%
   mutate(test = "AB3")
 
 comb_ab1 <- ab_test1 %>% 
-  select("subject_number", "Condition", "C.Gender", "correct", "test")
+  select("subject_number", "Condition", "C.Gender", "correct", "rt", "test")
 
 comb_ab2 <- ab_test2 %>% 
-  select("subject_number", "Condition", "C.Gender", "correct", "test")
+  select("subject_number", "Condition", "C.Gender", "correct", "rt", "test")
 
 comb_ab3 <- ab_test3 %>% 
-  select("subject_number", "Condition", "C.Gender", "correct", "test")
+  select("subject_number", "Condition", "C.Gender", "correct", "rt", "test")
 
 ab_tests <- rbind(comb_ab1, comb_ab2, comb_ab3)
 
@@ -2823,10 +2823,10 @@ posttest <- posttest %>%
   mutate(test = ifelse(abbcac == "AB", "AB", "BC"))
 
 comb_ac <- ac %>% 
-  select("subject_number", "Condition", "C.Gender", "correct", "test")
+  select("subject_number", "Condition", "C.Gender", "correct", "rt", "test")
 
 comb_post <- posttest %>% 
-  select("subject_number", "Condition", "C.Gender", "correct", "test")
+  select("subject_number", "Condition", "C.Gender", "correct", "rt", "test")
 
 posttests <- rbind(comb_ac, comb_post)
 
@@ -3280,6 +3280,70 @@ posttest_condition_by_abbcac_se_rt$se[4] <- bc_post_n_se_rt
        y = "Mean Accuracy")+
     facet_wrap(~abbcac))
 ```
+
+
+
+#Reaction Time Combined Graphs
+```{r}
+#ab_tests was created for the condition combined graphs
+#Just a binded version of all AB Tests
+rt_condition_ab_tests <-  ab_tests %>% 
+  group_by(test, Condition, subject_number) %>% 
+  summarise(median = median(rt, na.rm = TRUE))
+
+rt_mean_condition_abtests <-  rt_condition_ab_tests %>% 
+  group_by(test, Condition) %>% 
+  summarise(mean = mean(median, na.rm = TRUE))
+
+rt_abtests_condition_se <- Rmisc::summarySE(ab_tests, measurevar = "rt", 
+                            groupvars = c("test", "Condition"),
+                            na.rm = TRUE)
+rt_abtests_condition_se$se[1] <- ab1_e_se_rt
+rt_abtests_condition_se$se[1] <- ab1_n_se_rt
+rt_abtests_condition_se$se[2] <- ab2_e_se_rt
+rt_abtests_condition_se$se[3] <- ab2_n_se_rt
+rt_abtests_condition_se$se[4] <- ab3_e_se_rt
+rt_abtests_condition_se$se[5] <- ab3_n_se_rt
+(abtests_rt_condition_bar <- ggplot(rt_mean_condition_abtests, aes(test, mean, fill = Condition))+
+  geom_bar(stat = "identity", position = "dodge")+
+  geom_errorbar(aes(ymin = mean - rt_abtests_condition_se$se, ymax = mean + rt_abtests_condition_se$se),
+                width = 0.2,
+                position=position_dodge(.9))+
+      labs(title = "Reaction Time for Emotional and Neutral stimuli AB Tests", x = "Condition",
+       y = "Mean Reaction Time"))
+
+#posttests was created for the condition combined graphs
+#Just a binded version of all Post test and AC
+rt_condition_posttests <-  posttests %>% 
+  group_by(test, Condition, subject_number) %>% 
+  summarise(median = median(rt, na.rm = TRUE))
+
+rt_mean_condition_posttests <-  rt_condition_posttests %>% 
+  group_by(test, Condition) %>% 
+  summarise(mean = mean(median, na.rm = TRUE))
+
+rt_posttests_condition_se <- Rmisc::summarySE(posttests, measurevar = "rt", 
+                            groupvars = c("test", "Condition"),
+                            na.rm = TRUE)
+rt_posttests_condition_se$se[1] <- ab_post_e_se_rt
+rt_posttests_condition_se$se[2] <- ab_post_n_se_rt
+rt_posttests_condition_se$se[3] <- ac_e_se_rt
+rt_posttests_condition_se$se[4] <- ac_n_se_rt
+rt_posttests_condition_se$se[5] <- bc_post_e_se_rt
+rt_posttests_condition_se$se[6] <- bc_post_n_se_rt
+(posttests_rt_condition_bar <- ggplot(rt_mean_condition_posttests, aes(test, mean, fill = Condition))+
+  geom_bar(stat = "identity", position = "dodge")+
+  geom_errorbar(aes(ymin = mean - rt_posttests_condition_se$se, ymax = mean + rt_posttests_condition_se$se),
+                width = 0.2,
+                position=position_dodge(.9))+
+  labs(title = "Reaction Time for Emotional and Neutral stimuli Final Tests", x = "Condition",
+  y = "Reaction Time"))
+```
+
+
+
+
+
 
 
 
