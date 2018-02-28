@@ -2963,7 +2963,26 @@ ac_em_se_rt <- (sd(summary_rt$`AC EM`))/sqrt(nrow(summary_rt))
 ac_nf_se_rt <- (sd(summary_rt$`AC NF`))/sqrt(nrow(summary_rt))
 ac_nm_se_rt <- (sd(summary_rt$`AC NM`))/sqrt(nrow(summary_rt))
 ```
- 
+
+
+
+```{r, spread for anova spss}
+ab_tests_s <- ab_tests %>% 
+  select(-rt, -C.Gender) %>%
+  unite(test_condition, test, Condition) %>% 
+  reshape2::dcast(subject_number ~ test_condition, fun=mean)
+
+export(ab_tests_s, "ab_tests_s.sav")
+
+posttests_s <- posttests %>% 
+  select(-rt, -C.Gender) %>%
+  unite(test_condition, test, Condition) %>% 
+  reshape2::dcast(subject_number ~ test_condition, fun=mean)
+
+export(posttests_s, "posttests_s.sav")
+```
+
+
 
 #Reaction Time 
 
