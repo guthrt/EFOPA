@@ -1,0 +1,3704 @@
+---
+title: "EFOPA Version 2"
+author: "Taylor Guthrie"
+date: "January 20, 2018"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    
+  
+---
+
+
+```{r, chunk_options, message = FALSE, error = FALSE, warning = FALSE, echo = FALSE}
+knitr::opts_chunk$set(message = FALSE, error = FALSE, warning = FALSE, echo = FALSE)
+```
+
+
+
+```{r, library_and_options}
+library(rmatio) 
+library(tidyverse)
+library(purrr)
+library(psych)
+library(rio)
+library(wesanderson)
+library(ggthemes)
+```
+
+
+
+```{r, import}
+#Pull ab study 1 data
+files <- list.files(pattern = "\\.mat")
+files <- files[grep("_ab_", files)]
+dl <- map(files, read.mat)
+
+pull_studydata1 <- function(l) {
+  stim <- l$data$study$stim[[1]]
+  colnames(stim) <- c("id","Condition","C-Gender", "Gender", "a", "b", "c")
+  data.frame(
+    cbind(
+      stim     = stim,
+      response = l$data$study$resp[[1]],
+      rt       = l$data$study$rt[[1]]))
+}
+
+ab_study1 <- map_df(dl, pull_studydata1, .id = "file")
+ab_study1$file <- substr(files, 1, nchar(files) - 4)[as.numeric(ab_study1$file)]
+
+ab_study1 <- ab_study1 %>% 
+  separate(file, c("dis", "dis2", "dis3", "subject_number")) %>% 
+  select(-starts_with("dis"))
+
+#Pull ab study 2 data
+files <- list.files(pattern = "\\.mat")
+files <- files[grep("_ab_", files)]
+dl <- map(files, read.mat)
+
+pull_studydata2 <- function(l) {
+  stim <- l$data$study$stim[[2]]
+  colnames(stim) <- c("id","Condition","C-Gender", "Gender", "a", "b", "c")
+  data.frame(
+    cbind(
+      stim     = stim,
+      response = l$data$study$resp[[2]],
+      rt       = l$data$study$rt[[2]]))
+}
+
+ab_study2 <- map_df(dl, pull_studydata2, .id = "file")
+ab_study2$file <- substr(files, 1, nchar(files) - 4)[as.numeric(ab_study2$file)]
+
+ab_study2 <- ab_study2 %>% 
+  separate(file, c("dis", "dis2", "dis3", "subject_number")) %>% 
+  select(-starts_with("dis"))
+
+#Pull ab study 3 data
+files <- list.files(pattern = "\\.mat")
+files <- files[grep("_ab_", files)]
+dl <- map(files, read.mat)
+
+pull_studydata3 <- function(l) {
+  stim <- l$data$study$stim[[3]]
+  colnames(stim) <- c("id","Condition","C-Gender", "Gender", "a", "b", "c")
+  data.frame(
+    cbind(
+      stim     = stim,
+      response = l$data$study$resp[[3]],
+      rt       = l$data$study$rt[[3]]))
+}
+
+ab_study3 <- map_df(dl, pull_studydata3, .id = "file")
+ab_study3$file <- substr(files, 1, nchar(files) - 4)[as.numeric(ab_study3$file)]
+
+ab_study3 <- ab_study3 %>% 
+  separate(file, c("dis", "dis2", "dis3", "subject_number")) %>% 
+  select(-starts_with("dis"))
+
+#Pull ab test 1 data
+files <- list.files(pattern = "\\.mat")
+files <- files[grep("_ab_", files)]
+dl <- map(files, read.mat)
+
+pull_testdata1 <- function(l) {
+  stim <- l$data$test$stim[[1]]
+  colnames(stim) <- c("id","Condition","C-Gender", "Gender", "a", "b", "c")
+  data.frame(
+    cbind(
+      stim     = stim,
+      correct  = l$data$test$iscorrect[[1]],
+      rt       = l$data$test$rt[[1]]))
+}
+
+ab_test1 <- map_df(dl, pull_testdata1, .id = "file")
+ab_test1$file <- substr(files, 1, nchar(files) - 4)[as.numeric(ab_test1$file)]
+
+ab_test1 <- ab_test1 %>% 
+  separate(file, c("dis", "dis2", "dis3", "subject_number")) %>% 
+  select(-starts_with("dis"))
+
+ab_test1$Condition[ab_test1$Condition == 1] <- "neutral"
+ab_test1$Condition[ab_test1$Condition == 2] <- "emotion"
+ab_test1$Gender[ab_test1$Gender == 1] <- "male"
+ab_test1$Gender[ab_test1$Gender == 2] <- "female"
+ab_test1$C.Gender[ab_test1$C.Gender == 1] <- "neutral male"
+ab_test1$C.Gender[ab_test1$C.Gender == 2] <- "neutral female"
+ab_test1$C.Gender[ab_test1$C.Gender == 3] <- "emotion male"
+ab_test1$C.Gender[ab_test1$C.Gender == 4] <- "emotion female"
+
+#Pull ab test 2 data
+files <- list.files(pattern = "\\.mat")
+files <- files[grep("_ab_", files)]
+dl <- map(files, read.mat)
+
+pull_testdata2 <- function(l) {
+  stim <- l$data$test$stim[[2]]
+  colnames(stim) <- c("id","Condition","C-Gender", "Gender", "a", "b", "c")
+  data.frame(
+    cbind(
+      stim     = stim,
+      correct  = l$data$test$iscorrect[[2]],
+      rt       = l$data$test$rt[[2]]))
+}
+
+ab_test2 <- map_df(dl, pull_testdata2, .id = "file")
+ab_test2$file <- substr(files, 1, nchar(files) - 4)[as.numeric(ab_test2$file)]
+
+ab_test2 <- ab_test2 %>% 
+  separate(file, c("dis", "dis2", "dis3", "subject_number")) %>% 
+  select(-starts_with("dis"))
+
+ab_test2$Condition[ab_test2$Condition == 1] <- "neutral"
+ab_test2$Condition[ab_test2$Condition == 2] <- "emotion"
+ab_test2$Gender[ab_test2$Gender == 1] <- "female"
+ab_test2$Gender[ab_test2$Gender == 2] <- "male"
+ab_test2$C.Gender[ab_test2$C.Gender == 1] <- "neutral female"
+ab_test2$C.Gender[ab_test2$C.Gender == 2] <- "neutral male"
+ab_test2$C.Gender[ab_test2$C.Gender == 3] <- "emotion female"
+ab_test2$C.Gender[ab_test2$C.Gender == 4] <- "emotion male"
+
+#Pull ab test 3 data
+files <- list.files(pattern = "\\.mat")
+files <- files[grep("_ab_", files)]
+dl <- map(files, read.mat)
+
+pull_testdata3 <- function(l) {
+  stim <- l$data$test$stim[[3]]
+  colnames(stim) <- c("id","Condition","C-Gender", "Gender", "a", "b", "c")
+  data.frame(
+    cbind(
+      stim     = stim,
+      correct  = l$data$test$iscorrect[[3]],
+      rt       = l$data$test$rt[[3]]))
+}
+
+ab_test3 <- map_df(dl, pull_testdata3, .id = "file")
+ab_test3$file <- substr(files, 1, nchar(files) - 4)[as.numeric(ab_test3$file)]
+
+ab_test3 <- ab_test3 %>% 
+  separate(file, c("dis", "dis2", "dis3", "subject_number")) %>% 
+  select(-starts_with("dis"))
+
+ab_test3$Condition[ab_test3$Condition == 1] <- "neutral"
+ab_test3$Condition[ab_test3$Condition == 2] <- "emotion"
+ab_test3$Gender[ab_test3$Gender == 1] <- "female"
+ab_test3$Gender[ab_test3$Gender == 2] <- "male"
+ab_test3$C.Gender[ab_test3$C.Gender == 1] <- "neutral female"
+ab_test3$C.Gender[ab_test3$C.Gender == 2] <- "neutral male"
+ab_test3$C.Gender[ab_test3$C.Gender == 3] <- "emotion female"
+ab_test3$C.Gender[ab_test3$C.Gender == 4] <- "emotion male"
+
+#Pull bc study data
+files <- list.files(pattern = "\\.mat")
+files <- files[grep("_bc_", files)]
+dl <- map(files, read.mat)
+
+pull_studydata_bc <- function(l) {
+  stim <- l$data$stim[[1]]
+  colnames(stim) <- c("id","Condition","C-Gender", "Gender", "a", "b", "c")
+  data.frame(
+    cbind(
+      stim     = stim,
+      response = l$data$resp[[1]],
+      rt       = l$data$rt[[1]]))
+}
+
+bc_study <- map_df(dl, pull_studydata_bc, .id = "file")
+bc_study$file <- substr(files, 1, nchar(files) - 4)[as.numeric(bc_study$file)]
+
+bc_study <- bc_study %>% 
+  separate(file, c("dis", "dis2", "dis3", "subject_number")) %>% 
+  select(-starts_with("dis"))
+
+#Pull ac test data
+files <- list.files(pattern = "\\.mat")
+files <- files[grep("_ac_", files)]
+dl <- map(files, read.mat)
+
+pull_testdata <- function(l) {
+  stim <- l$data$stim[[1]]
+  colnames(stim) <- c("id","Condition","C-Gender", "Gender", "a", "b", "c")
+  data.frame(
+    cbind(
+      stim    = stim,
+      correct = l$data$iscorrect[[1]],
+      rt      = l$data$rt[[1]]))
+}
+
+ac <- map_df(dl, pull_testdata, .id = "file")
+ac$file <- substr(files, 1, nchar(files) - 4)[as.numeric(ac$file)]
+
+ac <- ac %>% 
+  separate(file, c("dis", "dis2", "dis3", "subject_number")) %>% 
+  select(-starts_with("dis"))
+
+ac$Condition[ac$Condition == 1] <- "neutral"
+ac$Condition[ac$Condition == 2] <- "emotion"
+ac$Gender[ac$Gender == 1] <- "female"
+ac$Gender[ac$Gender == 2] <- "male"
+ac$C.Gender[ac$C.Gender == 1] <- "neutral female"
+ac$C.Gender[ac$C.Gender == 2] <- "neutral male"
+ac$C.Gender[ac$C.Gender == 3] <- "emotion female"
+ac$C.Gender[ac$C.Gender == 4] <- "emotion male"
+
+#Pull posttest data
+files <- list.files(pattern = "\\.mat")
+files <- files[grep("_posttest_", files)]
+dl <- map(files, read.mat)
+
+pull_posttestdata <- function(l) {
+  stim <- l$data$stim[[1]]
+  colnames(stim) <- c("id","Condition","C-Gender", "Gender", "a", "b", "c")
+  data.frame(
+    cbind(
+      stim     = stim,
+      correct  = l$data$iscorrect[[1]],
+      rt       = l$data$rt[[1]]),
+      abbcac   = l$data$abbcac[[1]])
+}
+
+posttest <- map_df(dl, pull_posttestdata, .id = "file")
+posttest$file <- substr(files, 1, nchar(files) - 4)[as.numeric(posttest$file)]
+
+posttest <- posttest %>% 
+  separate(file, c("dis", "dis2", "dis3", "subject_number")) %>% 
+  select(-starts_with("dis"))
+
+posttest$Condition[posttest$Condition == 1] <- "neutral"
+posttest$Condition[posttest$Condition == 2] <- "emotion"
+posttest$Gender[posttest$Gender == 1] <- "male"
+posttest$Gender[posttest$Gender == 2] <- "female"
+posttest$C.Gender[posttest$C.Gender == 1] <- "neutral male"
+posttest$C.Gender[posttest$C.Gender == 2] <- "neutral female"
+posttest$C.Gender[posttest$C.Gender == 3] <- "emotion male"
+posttest$C.Gender[posttest$C.Gender == 4] <- "emotion female"
+posttest$abbcac[posttest$abbcac == 1] <- "AB"
+posttest$abbcac[posttest$abbcac == 2] <- "BC"
+posttest$abbcac[posttest$abbcac == 3] <- "AC"
+
+
+#subject_gender <- c("female","female","male","female","male","male","female","female","female","male","female","male",
+#                                  "female","male","female","male","female","male","male","female","female","male","male","female",
+#                                  "male","male","female","male","male","male")
+#subject_number <- as.data.frame(c("101","102","103","104","105","106","107","108","109","110","111","112","113","114","115","116",
+#                                  "117","118","119", "120","121","122","123","124","125","126","127","128","129","130"))
+#
+#subject_gender <- subject_number %>% 
+#  mutate(subject_gender = subject_gender)
+#colnames(subject_gender)[1] <- "subject_number"#
+
+```
+
+
+
+```{r, se}
+summary <- import("EFOPA Summary Analysis.xlsx") 
+
+ab1_e_se <- (sd(summary$`AB1 E`))/sqrt(nrow(summary))
+ab1_n_se <- (sd(summary$`AB1 N`))/sqrt(nrow(summary))
+ab2_e_se <- (sd(summary$`AB2 E`))/sqrt(nrow(summary))
+ab2_n_se <- (sd(summary$`AB2 N`))/sqrt(nrow(summary))
+ab3_e_se <- (sd(summary$`AB3 E`))/sqrt(nrow(summary))
+ab3_n_se <- (sd(summary$`AB3 N`))/sqrt(nrow(summary))
+ab_post_e_se <- (sd(summary$`AB Post E`))/sqrt(nrow(summary))
+ab_post_n_se <- (sd(summary$`AB Post N`))/sqrt(nrow(summary))
+bc_post_e_se <- (sd(summary$`BC Post E`))/sqrt(nrow(summary))
+bc_post_n_se <- (sd(summary$`BC Post N`))/sqrt(nrow(summary))
+ac_e_se <- (sd(summary$`AC E`))/sqrt(nrow(summary))
+ac_n_se <- (sd(summary$`AC N`))/sqrt(nrow(summary))
+
+ab1_ef_se <- (sd(summary$`AB1 EF`))/sqrt(nrow(summary))
+ab1_em_se <- (sd(summary$`AB1 EM`))/sqrt(nrow(summary))
+ab1_nf_se <- (sd(summary$`AB1 NF`))/sqrt(nrow(summary))
+ab1_nm_se <- (sd(summary$`AB1 NM`))/sqrt(nrow(summary))
+ab2_ef_se <- (sd(summary$`AB2 EF`))/sqrt(nrow(summary))
+ab2_em_se <- (sd(summary$`AB2 EM`))/sqrt(nrow(summary))
+ab2_nf_se <- (sd(summary$`AB2 NF`))/sqrt(nrow(summary))
+ab2_nm_se <- (sd(summary$`AB2 NM`))/sqrt(nrow(summary))
+ab3_ef_se <- (sd(summary$`AB3 EF`))/sqrt(nrow(summary))
+ab3_em_se <- (sd(summary$`AB3 EM`))/sqrt(nrow(summary))
+ab3_nf_se <- (sd(summary$`AB3 NF`))/sqrt(nrow(summary))
+ab3_nm_se <- (sd(summary$`AB3 NM`))/sqrt(nrow(summary))
+ab_post_ef_se <- (sd(summary$`AB Post EF`))/sqrt(nrow(summary))
+ab_post_em_se <- (sd(summary$`AB Post EM`))/sqrt(nrow(summary))
+ab_post_nf_se <- (sd(summary$`AB Post NF`))/sqrt(nrow(summary))
+ab_post_nm_se <- (sd(summary$`AB Post NM`))/sqrt(nrow(summary))
+bc_post_ef_se <- (sd(summary$`BC Post EF`))/sqrt(nrow(summary))
+bc_post_em_se <- (sd(summary$`BC Post EM`))/sqrt(nrow(summary))
+bc_post_nf_se <- (sd(summary$`BC Post NF`))/sqrt(nrow(summary))
+bc_post_nm_se <- (sd(summary$`BC Post NM`))/sqrt(nrow(summary))
+ac_ef_se <- (sd(summary$`AC EF`))/sqrt(nrow(summary))
+ac_em_se <- (sd(summary$`AC EM`))/sqrt(nrow(summary))
+ac_nf_se <- (sd(summary$`AC NF`))/sqrt(nrow(summary))
+ac_nm_se <- (sd(summary$`AC NM`))/sqrt(nrow(summary))
+
+#summary_females <- import("EFOPA summary females.xlsx")
+#
+#f_ab1_e_se <- (sd(summary_females$`AB1 E`))/sqrt(nrow(summary_females))
+#f_ab1_n_se <- (sd(summary_females$`AB1 N`))/sqrt(nrow(summary_females))
+#f_ab2_e_se <- (sd(summary_females$`AB2 E`))/sqrt(nrow(summary_females))
+#f_ab2_n_se <- (sd(summary_females$`AB2 N`))/sqrt(nrow(summary_females))
+#f_ab3_e_se <- (sd(summary_females$`AB3 E`))/sqrt(nrow(summary_females))
+#f_ab3_n_se <- (sd(summary_females$`AB3 N`))/sqrt(nrow(summary_females))
+#f_ab_post_e_se <- (sd(summary_females$`AB Post E`))/sqrt(nrow(summary_females))
+#f_ab_post_n_se <- (sd(summary_females$`AB Post N`))/sqrt(nrow(summary_females))
+#f_bc_post_e_se <- (sd(summary_females$`BC Post E`))/sqrt(nrow(summary_females))
+#f_bc_post_n_se <- (sd(summary_females$`BC Post N`))/sqrt(nrow(summary_females))
+#f_ac_e_se <- (sd(summary_females$`AC E`))/sqrt(nrow(summary_females))
+#f_ac_n_se <- (sd(summary_females$`AC N`))/sqrt(nrow(summary_females))
+#
+#f_ab1_ef_se <- (sd(summary_females$`AB1 EF`))/sqrt(nrow(summary_females))
+#f_ab1_em_se <- (sd(summary_females$`AB1 EM`))/sqrt(nrow(summary_females))
+#f_ab1_nf_se <- (sd(summary_females$`AB1 NF`))/sqrt(nrow(summary_females))
+#f_ab1_nm_se <- (sd(summary_females$`AB1 NM`))/sqrt(nrow(summary_females))
+#f_ab2_ef_se <- (sd(summary_females$`AB2 EF`))/sqrt(nrow(summary_females))
+#f_ab2_em_se <- (sd(summary_females$`AB2 EM`))/sqrt(nrow(summary_females))
+#f_ab2_nf_se <- (sd(summary_females$`AB2 NF`))/sqrt(nrow(summary_females))
+#f_ab2_nm_se <- (sd(summary_females$`AB2 NM`))/sqrt(nrow(summary_females))
+#f_ab3_ef_se <- (sd(summary_females$`AB3 EF`))/sqrt(nrow(summary_females))
+#f_ab3_em_se <- (sd(summary_females$`AB3 EM`))/sqrt(nrow(summary_females))
+#f_ab3_nf_se <- (sd(summary_females$`AB3 NF`))/sqrt(nrow(summary_females))
+#f_ab3_nm_se <- (sd(summary_females$`AB3 NM`))/sqrt(nrow(summary_females))
+#f_ab_post_ef_se <- (sd(summary_females$`AB Post EF`))/sqrt(nrow(summary_females))
+#f_ab_post_em_se <- (sd(summary_females$`AB Post EM`))/sqrt(nrow(summary_females))
+#f_ab_post_nf_se <- (sd(summary_females$`AB Post NF`))/sqrt(nrow(summary_females))
+#f_ab_post_nm_se <- (sd(summary_females$`AB Post NM`))/sqrt(nrow(summary_females))
+#f_bc_post_ef_se <- (sd(summary_females$`BC Post EF`))/sqrt(nrow(summary_females))
+#f_bc_post_em_se <- (sd(summary_females$`BC Post EM`))/sqrt(nrow(summary_females))
+#f_bc_post_nf_se <- (sd(summary_females$`BC Post NF`))/sqrt(nrow(summary_females))
+#f_bc_post_nm_se <- (sd(summary_females$`BC Post NM`))/sqrt(nrow(summary_females))
+#f_ac_ef_se <- (sd(summary_females$`AC EF`))/sqrt(nrow(summary_females))
+#f_ac_em_se <- (sd(summary_females$`AC EM`))/sqrt(nrow(summary_females))
+#f_ac_nf_se <- (sd(summary_females$`AC NF`))/sqrt(nrow(summary_females))
+#f_ac_nm_se <- (sd(summary_females$`AC NM`))/sqrt(nrow(summary_females))
+#
+#summary_males <- import("EFOPA summary males.xlsx")
+#
+#m_ab1_e_se <- (sd(summary_males$`AB1 E`))/sqrt(nrow(summary_males))
+#m_ab1_n_se <- (sd(summary_males$`AB1 N`))/sqrt(nrow(summary_males))
+#m_ab2_e_se <- (sd(summary_males$`AB2 E`))/sqrt(nrow(summary_males))
+#m_ab2_n_se <- (sd(summary_males$`AB2 N`))/sqrt(nrow(summary_males))
+#m_ab3_e_se <- (sd(summary_males$`AB3 E`))/sqrt(nrow(summary_males))
+#m_ab3_n_se <- (sd(summary_males$`AB3 N`))/sqrt(nrow(summary_males))
+#m_ab_post_e_se <- (sd(summary_males$`AB Post E`))/sqrt(nrow(summary_males))
+#m_ab_post_n_se <- (sd(summary_males$`AB Post N`))/sqrt(nrow(summary_males))
+#m_bc_post_e_se <- (sd(summary_males$`BC Post E`))/sqrt(nrow(summary_males))
+#m_bc_post_n_se <- (sd(summary_males$`BC Post N`))/sqrt(nrow(summary_males))
+#m_ac_e_se <- (sd(summary_males$`AC E`))/sqrt(nrow(summary_males))
+#m_ac_n_se <- (sd(summary_males$`AC N`))/sqrt(nrow(summary_males))
+#
+#m_ab1_ef_se <- (sd(summary_males$`AB1 EF`))/sqrt(nrow(summary_males))
+#m_ab1_em_se <- (sd(summary_males$`AB1 EM`))/sqrt(nrow(summary_males))
+#m_ab1_nf_se <- (sd(summary_males$`AB1 NF`))/sqrt(nrow(summary_males))
+#m_ab1_nm_se <- (sd(summary_males$`AB1 NM`))/sqrt(nrow(summary_males))
+#m_ab2_ef_se <- (sd(summary_males$`AB2 EF`))/sqrt(nrow(summary_males))
+#m_ab2_em_se <- (sd(summary_males$`AB2 EM`))/sqrt(nrow(summary_males))
+#m_ab2_nf_se <- (sd(summary_males$`AB2 NF`))/sqrt(nrow(summary_males))
+#m_ab2_nm_se <- (sd(summary_males$`AB2 NM`))/sqrt(nrow(summary_males))
+#m_ab3_ef_se <- (sd(summary_males$`AB3 EF`))/sqrt(nrow(summary_males))
+#m_ab3_em_se <- (sd(summary_males$`AB3 EM`))/sqrt(nrow(summary_males))
+#m_ab3_nf_se <- (sd(summary_males$`AB3 NF`))/sqrt(nrow(summary_males))
+#m_ab3_nm_se <- (sd(summary_males$`AB3 NM`))/sqrt(nrow(summary_males))
+#m_ab_post_ef_se <- (sd(summary_males$`AB Post EF`))/sqrt(nrow(summary_males))
+#m_ab_post_em_se <- (sd(summary_males$`AB Post EM`))/sqrt(nrow(summary_males))
+#m_ab_post_nf_se <- (sd(summary_males$`AB Post NF`))/sqrt(nrow(summary_males))
+#m_ab_post_nm_se <- (sd(summary_males$`AB Post NM`))/sqrt(nrow(summary_males))
+#m_bc_post_ef_se <- (sd(summary_males$`BC Post EF`))/sqrt(nrow(summary_males))
+#m_bc_post_em_se <- (sd(summary_males$`BC Post EM`))/sqrt(nrow(summary_males))
+#m_bc_post_nf_se <- (sd(summary_males$`BC Post NF`))/sqrt(nrow(summary_males))
+#m_bc_post_nm_se <- (sd(summary_males$`BC Post NM`))/sqrt(nrow(summary_males))
+#m_ac_ef_se <- (sd(summary_males$`AC EF`))/sqrt(nrow(summary_males))
+#m_ac_em_se <- (sd(summary_males$`AC EM`))/sqrt(nrow(summary_males))
+#m_ac_nf_se <- (sd(summary_males$`AC NF`))/sqrt(nrow(summary_males))
+#m_ac_nm_se <- (sd(summary_males$`AC NM`))/sqrt(nrow(summary_males))
+
+```
+
+
+#AB Test 1 Analysis
+```{r, ab_test1_analysis}
+#splitting by sub gender  
+#ab_test1 <- ab_test1 %>% 
+#  left_join(subject_gender)
+#
+#ab_test1_males <- ab_test1 %>% 
+#  filter(subject_gender == "male")
+#
+#ab_test1_females <- ab_test1 %>% 
+#  filter(subject_gender == "female")
+
+#condition
+correct_condition_ab_test1 <-  ab_test1 %>% 
+  group_by(Condition, subject_number) %>% 
+  summarise(mean = mean(correct),
+            sd = sd(correct))
+
+temp_ab1 <- correct_condition_ab_test1 %>% 
+  select(-sd) %>% 
+  spread(Condition, mean) %>% 
+  select('neutral','emotion')
+
+t.test(temp_ab1$neutral, temp_ab1$emotion, paired = TRUE, conf.level = .95)
+
+#Number of E>N, N>E, and E=N
+ab1_emotion_means <- correct_condition_ab_test1 %>% 
+  filter(Condition == "emotion")
+
+ab1_neutral_means <- correct_condition_ab_test1 %>% 
+  filter(Condition == "neutral") 
+
+ab1_greater <- ab1_emotion_means$mean > ab1_neutral_means$mean
+ab1_greater <- sum(ab1_greater)
+
+ab1_less <- ab1_emotion_means$mean < ab1_neutral_means$mean
+ab1_less <- sum(ab1_less)
+
+ab1_equal <- ab1_emotion_means$mean == ab1_neutral_means$mean
+ab1_equal <- sum(ab1_equal)
+
+#correct_condition_ab_test1_females <-  ab_test1_females %>% 
+#  group_by(Condition, subject_number) %>% 
+#  summarise(mean = mean(correct),
+#            sd = sd(correct))
+#
+#correct_condition_ab_test1_males <-  ab_test1_males %>% 
+#  group_by(Condition, subject_number) %>% 
+#  summarise(mean = mean(correct),
+#            sd = sd(correct))
+
+correct_gender_ab_test1 <-  ab_test1 %>% 
+  group_by(Gender, subject_number) %>% 
+  summarise(mean = mean(correct),
+            sd = sd(correct))
+
+correct_congender_ab_test1 <-  ab_test1 %>% 
+  group_by(C.Gender, subject_number) %>% 
+  summarise(mean = mean(correct),
+            sd = sd(correct))
+
+#correct_congender_ab_test1_females <-  ab_test1_females %>% 
+#  group_by(C.Gender, subject_number) %>% 
+#  summarise(mean = mean(correct),
+#            sd = sd(correct))
+#
+#correct_congender_ab_test1_males <-  ab_test1_males %>% 
+#  group_by(C.Gender, subject_number) %>% 
+#  summarise(mean = mean(correct),
+#            sd = sd(correct))
+
+
+#overall mean
+mean_condition_abtest1 <- ab_test1 %>% 
+  group_by(Condition) %>% 
+  summarise(mean = mean(correct))
+
+#mean_condition_abtest1_females <- ab_test1_females %>% 
+#  group_by(Condition) %>% 
+#  summarise(mean = mean(correct))
+#
+#mean_condition_abtest1_males <- ab_test1_males %>% 
+#  group_by(Condition) %>% 
+#  summarise(mean = mean(correct))
+
+mean_gender_abtest1 <- ab_test1 %>% 
+  group_by(Gender) %>% 
+  summarise(mean = mean(correct))
+
+mean_congender_abtest1 <- ab_test1 %>% 
+  group_by(C.Gender) %>% 
+  summarise(mean = mean(correct))
+
+#mean_congender_abtest1_females <- ab_test1_females %>% 
+#  group_by(C.Gender) %>% 
+#  summarise(mean = mean(correct))
+#
+#mean_congender_abtest1_males <- ab_test1_males %>% 
+#  group_by(C.Gender) %>% 
+#  summarise(mean = mean(correct))
+
+
+#reaction time
+rt_condition_ab_test1 <- ab_test1 %>% 
+  group_by(Condition, subject_number) %>% 
+  summarise(median = median(rt, na.rm = TRUE),
+            sd = sd(rt,na.rm = TRUE))
+
+rt_gender_ab_test1 <- ab_test1 %>% 
+  group_by(Gender, subject_number) %>% 
+  summarise(median = median(rt, na.rm = TRUE),
+            sd = sd(rt,na.rm = TRUE))
+
+temp_ab1_rt <- rt_gender_ab_test1 %>% 
+  select(-sd) %>% 
+  spread(Gender, median) %>% 
+  select('female','male')
+
+abtest1_rt_ttest <- t.test(temp_ab1_rt$female, temp_ab1_rt$male, paired = TRUE, conf.level = .95)
+
+rt_congender_ab_test1 <- ab_test1 %>% 
+  group_by(C.Gender, subject_number) %>% 
+  summarise(median = median(rt, na.rm = TRUE),
+            sd = sd(rt,na.rm = TRUE))
+
+#Mean of median reaction times
+rt_mean_condition_abtest1 <-  rt_condition_ab_test1 %>% 
+  group_by(Condition) %>% 
+  summarise(mean = mean(median))
+
+rt_mean_gender_abtest1 <- rt_gender_ab_test1 %>% 
+  group_by(Gender) %>% 
+  summarise(mean = mean(median))
+
+rt_mean_congender_abtest1 <- rt_congender_ab_test1 %>% 
+  group_by(C.Gender) %>% 
+  summarise(mean = mean(median))
+```
+There were `r ab1_greater` E>N, `r ab1_less` N>E and `r ab1_equal` E=N in AB Test 1.
+
+
+#AB Test 1 Plots
+##By Condition
+```{r, plotting_ab_test1_condition}
+#Condition 
+abtest1_condition_line <- ggplot(correct_condition_ab_test1,
+                               aes(subject_number, mean))+
+  geom_point(aes(color = Condition), size = 3, alpha = .6)+
+  geom_line(aes(group = subject_number))+
+  labs(title = "AB Test 1: Accuracy for Emotional and Neutral stimuli by subject", x = "Subject Number",
+       y = "Mean Accuracy")
+(abtest1_condition_line <- abtest1_condition_line + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)))
+
+#(abtest1_condition_violin <- ggplot(correct_condition_ab_test1, aes(Condition, mean))+
+#  geom_violin(alpha = 0.8, aes(fill = Condition))+
+#  geom_jitter(width = .1)+
+#  labs(title = "AB Test 1: Accuracy for Emotional and Neutral
+#       stimuli", x = "Condition",
+#       y = "Mean Accuracy"))
+  
+
+abtest1_condition_se <- Rmisc::summarySE(ab_test1, measurevar = "correct", 
+                            groupvars = c("Condition"))
+abtest1_condition_se$se[1] <- ab1_e_se
+abtest1_condition_se$se[2] <- ab1_n_se
+(abtest1_condition_bar <- ggplot(mean_condition_abtest1, aes(Condition, mean, fill = Condition))+
+  geom_bar(stat = "identity")+
+  geom_jitter(data = correct_condition_ab_test1, aes(x = Condition, y = mean), width = .1)+
+  geom_errorbar(aes(ymin = mean - abtest1_condition_se$se, ymax = mean + abtest1_condition_se$se),
+                width = 0.2,
+                position=position_dodge(.9))+
+      labs(title = "AB Test 1: Accuracy for Emotional and Neutral stimuli", 
+           x = "Condition",
+       y = "Mean Accuracy"))
+
+
+(abtest1_condition_bar_line <- ggplot(mean_condition_abtest1, aes(Condition, mean, fill = Condition))+
+  geom_bar(stat = "identity")+
+  geom_point(data = correct_condition_ab_test1, aes(x = Condition, y = mean))+
+  geom_line(data = correct_condition_ab_test1, aes(x = Condition, y = mean, group = subject_number))+
+  geom_errorbar(aes(ymin = mean - abtest1_condition_se$se, ymax = mean + abtest1_condition_se$se),
+                width = 0.2,
+                position=position_dodge(.9))+
+      labs(title = "AB Test 1: Accuracy for Emotional and Neutral stimuli", 
+           x = "Condition",
+       y = "Mean Accuracy"))
+
+####(abtest1_condition_point <- ggplot(correct_condition_ab_test1)+
+####  geom_jitter(width = .2, alpha = .8, aes(Condition, mean, color = Condition))+
+####  geom_pointrange(data = abtest1_condition_se, aes(x = Condition, y = correct, 
+####                  ymin = (correct - ci),
+####                  ymax = (correct + ci)))+
+####  labs(title = "Accuracy for Emotional and Neutral stimuli by subject", x = "Condition",
+####       y = "Mean Accuracy"))
+####
+####(abtest1_condition_boxplot <- ggplot(correct_condition_ab_test1, aes(Condition, mean))+
+####  geom_boxplot(aes(fill = Condition))+
+####  labs(title = "Accuracy for Emotional and Neutral stimuli by subject", x = "Condition",
+####       y = "Mean Accuracy"))
+####
+#condition by subject gender
+#abtest1_females_condition_se <- Rmisc::summarySE(ab_test1_females, measurevar = "correct", 
+#                            groupvars = c("Condition"))
+#abtest1_females_condition_se$se[1] <- f_ab1_e_se
+#abtest1_females_condition_se$se[2] <- f_ab1_n_se
+#(abtest1_females_condition_bar <- ggplot(mean_condition_abtest1_females, aes(Condition, mean, fill = Condition))+
+#  geom_bar(stat = "identity")+
+#  geom_jitter(data = correct_condition_ab_test1_females, aes(x = Condition, y = mean), width = .1)+
+#  geom_errorbar(aes(ymin = mean - abtest1_females_condition_se$se, ymax = mean + abtest1_females_condition_se$se),
+#                width = 0.2,
+#                position=position_dodge(.9))+
+#      labs(title = "Accuracy for Emotional and Neutral stimuli AB Test 1", x = "Condition",
+#       y = "Mean Accuracy"))
+#
+#abtest1_males_condition_se <- Rmisc::summarySE(ab_test1_males, measurevar = "correct", 
+#                            groupvars = c("Condition"))
+#abtest1_males_condition_se$se[1] <- m_ab1_e_se
+#abtest1_males_condition_se$se[2] <- m_ab1_n_se
+#(abtest1_males_condition_bar <- ggplot(mean_condition_abtest1_males, aes(Condition, mean, fill = Condition))+
+#  geom_bar(stat = "identity")+
+#  geom_jitter(data = correct_condition_ab_test1_males, aes(x = Condition, y = mean), width = .1)+
+#  geom_errorbar(aes(ymin = mean - abtest1_males_condition_se$se, ymax = mean + abtest1_males_condition_se$se),
+#                width = 0.2,
+#                position=position_dodge(.9))+
+#      labs(title = "Accuracy for Emotional and Neutral stimuli AB Test 1", x = "Condition",
+#       y = "Mean Accuracy"))
+
+#Gender
+```
+
+
+
+By Gender of Stimuli
+```{r, plotting_ab_test1_gender}
+#abtest1_gender_line <- ggplot(correct_gender_ab_test1,
+#                               aes(subject_number, mean))+
+#  geom_point(aes(color = Gender), size = 3, alpha = .6)+
+#  geom_line(aes(group = subject_number))+
+#  labs(title = "AB Test 1: Accuracy for Male and Female stimuli by subject", x = #"Subject Number",
+#       y = "Mean Accuracy")
+#(abtest1_gender_line <- abtest1_gender_line + 
+#  theme(axis.text.x = element_text(angle = 90, hjust = 1)))
+
+#(abtest1_gender_violin <- ggplot(correct_gender_ab_test1, aes(Gender, mean))+
+#  geom_violin(alpha = 0.8, aes(fill = Gender))+
+#  geom_jitter(width = .1)+
+#  labs(title = "AB Test 1: Accuracy for Male and Female stimuli", x = "Gender",
+#       y = "Mean Accuracy"))
+#  
+#
+#abtest1_gender_se <- Rmisc::summarySE(ab_test1, measurevar = "correct", 
+#                            groupvars = c("Gender"))
+#(abtest1_gender_bar <- ggplot(mean_gender_abtest1, aes(Gender, mean, fill = Gender))+
+#  geom_bar(stat = "identity")+
+#  geom_jitter(data = correct_gender_ab_test1, aes(x = Gender, y = mean), width = .1)+
+#  geom_errorbar(aes(ymin = mean - abtest1_gender_se$se, ymax = mean + abtest1_gender_se$se),
+#                width = 0.2,
+#                position=position_dodge(.9))+
+#      labs(title = "AB Test 1: Accuracy for Male and Female stimuli", x = "Gender",
+#       y = "Mean Accuracy"))
+
+####(abtest1_gender_point <- ggplot(correct_gender_ab_test1)+
+####  geom_jitter(width = .2, alpha = .8, aes(Gender, mean, color = Gender))+
+####  geom_pointrange(data = abtest1_gender_se, aes(x = Gender, y = correct, 
+####                  ymin = (correct - ci),
+####                  ymax = (correct + ci)))+
+####  labs(title = "Accuracy for Male and Female stimuli by subject", x = "Gender",
+####       y = "Mean Accuracy"))
+####
+####(abtest1_gender_boxplot <- ggplot(correct_gender_ab_test1, aes(Gender, mean))+
+####  geom_boxplot(aes(fill = Gender))+
+####  labs(title = "Accuracy for Male and Female stimuli by subject", x = "Gender",
+####       y = "Mean Accuracy"))
+```
+
+
+
+##By condition and gender
+```{r, plotting_ab_test1_congender}
+#Conditional Gender
+#abtest1_congender_line <- ggplot(correct_congender_ab_test1,
+#                               aes(subject_number, mean))+
+#  geom_point(aes(color = C.Gender), size = 3, alpha = .6)+
+#  geom_line(aes(group = subject_number))+
+#  labs(title = "AB Test 1: Accuracy for Conditional Male and Female stimuli by #subject", x = "Subject Number",
+#       y = "Mean Accuracy")
+#(abtest1_congender_line <- abtest1_congender_line + 
+#  theme(axis.text.x = element_text(angle = 90, hjust = 1)))
+
+
+#(abtest1_congender_violin <- ggplot(correct_congender_ab_test1, aes(C.Gender, mean))+
+#  geom_violin(alpha = 0.8, aes(fill = C.Gender))+
+#  geom_jitter(width = .1)+
+#  labs(title = "AB Test 1: Accuracy for Male and Female stimuli", x = "Gender",
+#       y = "Mean Accuracy"))
+#  
+
+abtest1_congender_se <- Rmisc::summarySE(ab_test1, measurevar = "correct", 
+                            groupvars = c("C.Gender"))
+abtest1_congender_se$se[1] <- ab1_ef_se
+abtest1_congender_se$se[2] <- ab1_em_se
+abtest1_congender_se$se[3] <- ab1_nf_se
+abtest1_congender_se$se[4] <- ab1_nm_se
+(abtest1_congender_bar <- ggplot(mean_congender_abtest1, aes(C.Gender, mean, fill = C.Gender))+
+  geom_bar(stat = "identity")+
+  geom_jitter(data = correct_congender_ab_test1, aes(x = C.Gender, y = mean), width = .1)+
+  geom_errorbar(aes(ymin = mean - abtest1_congender_se$se, ymax = mean + abtest1_congender_se$se),
+                width = 0.2,
+                position=position_dodge(.9))+
+      labs(title = "AB Test 1: Accuracy for Emotional or Neutral Male and Female stimuli", x = "Gender",
+       y = "Mean Accuracy"))
+
+####(abtest1_congender_point <- ggplot(correct_congender_ab_test1)+
+####  geom_jitter(width = .2, alpha = .8, aes(C.Gender, mean, color = C.Gender))+
+####  geom_pointrange(data = abtest1_congender_se, aes(x = C.Gender, y = correct, 
+####                  ymin = (correct - ci),
+####                  ymax = (correct + ci)))+
+####  labs(title = "Accuracy for Male and Female stimuli by subject", x = "Gender",
+####       y = "Mean Accuracy"))
+####
+####(abtest1_congender_boxplot <- ggplot(correct_congender_ab_test1, aes(C.Gender, mean))+
+####  geom_boxplot(aes(fill = C.Gender))+
+####  labs(title = "Accuracy for Male and Female stimuli by subject", x = "Gender",
+####       y = "Mean Accuracy"))
+
+#Congender by subject gender
+#abtest1_females_congender_se <- Rmisc::summarySE(ab_test1_females, measurevar = "correct", 
+#                            groupvars = c("C.Gender"))
+#abtest1_females_congender_se$se[1] <- f_ab1_ef_se
+#abtest1_females_congender_se$se[2] <- f_ab1_em_se
+#abtest1_females_congender_se$se[3] <- f_ab1_nf_se
+#abtest1_females_congender_se$se[4] <- f_ab1_nm_se
+#(abtest1_females_congender_bar <- ggplot(mean_congender_abtest1_females, aes(C.Gender, mean, fill = C.Gender))+
+#  geom_bar(stat = "identity")+
+#  geom_jitter(data = correct_congender_ab_test1_females, aes(x = C.Gender, y = mean), width = .1)+
+#  geom_errorbar(aes(ymin = mean - abtest1_females_congender_se$se, ymax = mean + abtest1_females_congender_se$se),
+#                width = 0.2,
+#                position=position_dodge(.9))+
+#      labs(title = "Accuracy for Emotional or Neutral Male and Female stimuli Ab Test 1 ", x = "Gender",
+#       y = "Mean Accuracy"))
+#
+#abtest1_males_congender_se <- Rmisc::summarySE(ab_test1_males, measurevar = "correct", 
+#                            groupvars = c("C.Gender"))
+#abtest1_males_congender_se$se[1] <- m_ab1_ef_se
+#abtest1_males_congender_se$se[2] <- m_ab1_em_se
+#abtest1_males_congender_se$se[3] <- m_ab1_nf_se
+#abtest1_males_congender_se$se[4] <- m_ab1_nm_se
+#(abtest1_males_congender_bar <- ggplot(mean_congender_abtest1_males, aes(C.Gender, mean, fill = C.Gender))+
+#  geom_bar(stat = "identity")+
+#  geom_jitter(data = correct_congender_ab_test1_males, aes(x = C.Gender, y = mean), width = .1)+
+#  geom_errorbar(aes(ymin = mean - abtest1_males_congender_se$se, ymax = mean + abtest1_males_congender_se$se),
+#                width = 0.2,
+#                position=position_dodge(.9))+
+#      labs(title = "Accuracy for Emotional or Neutral Male and Female stimuli Ab Test 1 ", x = "Gender",
+#       y = "Mean Accuracy"))
+```
+
+
+
+#AB Test 2 Analysis
+```{r, ab_test2_analysis}
+#splitting by sub gender 
+#ab_test2 <- ab_test2 %>% 
+#  left_join(subject_gender)
+#
+#ab_test2_males <- ab_test2 %>% 
+#  filter(subject_gender == "male")
+#
+#ab_test2_females <- ab_test2 %>% 
+#  filter(subject_gender == "female")
+
+#condition
+correct_condition_ab_test2 <- ab_test2 %>% 
+  group_by(Condition, subject_number) %>% 
+  summarise(mean = mean(correct),
+            sd = sd(correct))
+
+temp_ab2 <- correct_condition_ab_test2 %>% 
+  select(-sd) %>% 
+  spread(Condition, mean) %>% 
+  select('neutral','emotion')
+
+t.test(temp_ab2$neutral, temp_ab2$emotion, paired = TRUE, conf.level = .95)
+
+#Number of E>N, N>E, and E=N
+ab2_emotion_means <- correct_condition_ab_test2 %>% 
+  filter(Condition == "emotion")
+
+ab2_neutral_means <- correct_condition_ab_test2 %>% 
+  filter(Condition == "neutral") 
+
+ab2_greater <- ab2_emotion_means$mean > ab2_neutral_means$mean
+ab2_greater <- sum(ab1_greater)
+
+ab2_less <- ab2_emotion_means$mean < ab2_neutral_means$mean
+ab2_less <- sum(ab1_less)
+
+ab2_equal <- ab2_emotion_means$mean == ab2_neutral_means$mean
+ab2_equal <- sum(ab1_equal)
+
+#correct_condition_ab_test2_females <-  ab_test2_females %>% 
+#  group_by(Condition, subject_number) %>% 
+#  summarise(mean = mean(correct),
+#            sd = sd(correct))
+#
+#correct_condition_ab_test2_males <-  ab_test2_males %>% 
+#  group_by(Condition, subject_number) %>% 
+#  summarise(mean = mean(correct),
+#            sd = sd(correct))
+
+correct_gender_ab_test2 <- ab_test2 %>% 
+  group_by(Gender, subject_number) %>% 
+  summarise(mean = mean(correct),
+            sd = sd(correct))
+
+correct_congender_ab_test2 <- ab_test2 %>% 
+  group_by(C.Gender, subject_number) %>% 
+  summarise(mean = mean(correct),
+            sd = sd(correct))
+
+#correct_congender_ab_test2_females <-  ab_test2_females %>% 
+#  group_by(C.Gender, subject_number) %>% 
+#  summarise(mean = mean(correct),
+#            sd = sd(correct))
+#
+#correct_congender_ab_test2_males <-  ab_test2_males %>% 
+#  group_by(C.Gender, subject_number) %>% 
+#  summarise(mean = mean(correct),
+#            sd = sd(correct))
+
+#Overall mean
+mean_condition_abtest2 <- ab_test2 %>% 
+  group_by(Condition) %>% 
+  summarise(mean = mean(correct))
+
+#mean_condition_abtest2_females <- ab_test2_females %>% 
+#  group_by(Condition) %>% 
+#  summarise(mean = mean(correct))
+#
+#mean_condition_abtest2_males <- ab_test2_males %>% 
+#  group_by(Condition) %>% 
+#  summarise(mean = mean(correct))
+
+mean_gender_abtest2 <- ab_test2 %>% 
+  group_by(Gender) %>% 
+  summarise(mean = mean(correct))
+
+mean_congender_abtest2 <- ab_test2 %>% 
+  group_by(C.Gender) %>% 
+  summarise(mean = mean(correct))
+
+#mean_congender_abtest2_females <- ab_test2_females %>% 
+#  group_by(C.Gender) %>% 
+#  summarise(mean = mean(correct))
+#
+#mean_congender_abtest2_males <- ab_test2_males %>% 
+#  group_by(C.Gender) %>% 
+#  summarise(mean = mean(correct))
+
+#Reaction Time
+rt_condition_ab_test2 <- ab_test2 %>% 
+  group_by(Condition, subject_number) %>% 
+  summarise(median = median(rt,na.rm = TRUE),
+            sd = sd(rt,na.rm = TRUE))
+
+rt_gender_ab_test2 <- ab_test2 %>% 
+  group_by(Gender, subject_number) %>% 
+  summarise(median = median(rt,na.rm = TRUE),
+            sd = sd(rt,na.rm = TRUE))
+
+temp_ab2_rt <- rt_gender_ab_test2 %>% 
+  select(-sd) %>% 
+  spread(Gender, median) %>% 
+  select('female','male')
+
+abtest2_rt_ttest <- t.test(temp_ab2_rt$female, temp_ab2_rt$male, paired = TRUE, conf.level = .95)
+
+rt_congender_ab_test2 <- ab_test2 %>% 
+  group_by(C.Gender, subject_number) %>% 
+  summarise(median = median(rt,na.rm = TRUE),
+            sd = sd(rt,na.rm = TRUE))
+
+#Mean of median reaction times
+rt_mean_condition_abtest2 <-  rt_condition_ab_test2 %>% 
+  group_by(Condition) %>% 
+  summarise(mean = mean(median))
+
+rt_mean_gender_abtest2 <- rt_gender_ab_test2 %>% 
+  group_by(Gender) %>% 
+  summarise(mean = mean(median))
+
+rt_mean_congender_abtest2 <- rt_congender_ab_test2 %>% 
+  group_by(C.Gender) %>% 
+  summarise(mean = mean(median))
+```
+There were `r ab2_greater` E>N, `r ab2_less` N>E and `r ab2_equal` E=N in AB Test 2.
+
+
+#AB Test 2 Plots
+##By Condition
+```{r, plotting_ab_test2_condition}
+#Condition 
+abtest2_condition_line <- ggplot(correct_condition_ab_test2,
+                               aes(subject_number, mean))+
+  geom_point(aes(color = Condition), size = 3, alpha = .6)+
+  geom_line(aes(group = subject_number))+
+  labs(title = "AB Test 2: Accuracy for Emotional and Neutral stimuli by subject", x = "Subject Number",
+       y = "Mean Accuracy")
+(abtest2_condition_line <- abtest2_condition_line + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)))
+
+#(abtest2_condition_violin <- ggplot(correct_condition_ab_test2, aes(Condition, mean))+
+#  geom_violin(alpha = 0.8, aes(fill = Condition))+
+#  geom_jitter(width = .1)+
+#  labs(title = "AB Test 2: Accuracy for Emotional and Neutral stimuli", x = "Condition",
+#       y = "Mean Accuracy"))
+#  
+
+abtest2_condition_se <- Rmisc::summarySE(ab_test2, measurevar = "correct", 
+                            groupvars = c("Condition"))
+abtest2_condition_se$se[1] <- ab2_e_se
+abtest2_condition_se$se[2] <- ab2_n_se
+(abtest2_condition_bar <- ggplot(mean_condition_abtest2, aes(Condition, mean, fill = Condition))+
+  geom_bar(stat = "identity")+
+  geom_jitter(data = correct_condition_ab_test2, aes(x = Condition, y = mean), width = .1)+
+  geom_errorbar(aes(ymin = mean - abtest2_condition_se$se, ymax = mean + abtest2_condition_se$se),
+                width = 0.2,
+                position=position_dodge(.9))+
+      labs(title = "AB Test 2: Accuracy for Emotional and Neutral stimuli", x = "Condition",
+       y = "Mean Accuracy"))
+
+(abtest2_condition_bar_line <- ggplot(mean_condition_abtest2, aes(Condition, mean, fill = Condition))+
+  geom_bar(stat = "identity")+
+  geom_point(data = correct_condition_ab_test2, aes(x = Condition, y = mean))+
+  geom_line(data = correct_condition_ab_test2, aes(x = Condition, y = mean, group = subject_number))+
+  geom_errorbar(aes(ymin = mean - abtest2_condition_se$se, ymax = mean + abtest2_condition_se$se),
+                width = 0.2,
+                position=position_dodge(.9))+
+      labs(title = "AB Test 2: Accuracy for Emotional and Neutral stimuli", x = "Condition",
+       y = "Mean Accuracy"))
+
+####(abtest2_condition_point <- ggplot(correct_condition_ab_test2)+
+####  geom_jitter(width = .2, alpha = .8, aes(Condition, mean, color = Condition))+
+####  geom_pointrange(data = abtest2_condition_se, aes(x = Condition, y = correct, 
+####                  ymin = (correct - ci),
+####                  ymax = (correct + ci)))+
+####  labs(title = "Accuracy for Emotional and Neutral stimuli by subject", x = "Condition",
+####       y = "Mean Accuracy"))
+####
+####(abtest2_condition_boxplot <- ggplot(correct_condition_ab_test2, aes(Condition, mean))+
+####  geom_boxplot(aes(fill = Condition))+
+####  labs(title = "Accuracy for Emotional and Neutral stimuli by subject", x = "Condition",
+####       y = "Mean Accuracy"))
+
+#condition by subject gender
+#abtest2_females_condition_se <- Rmisc::summarySE(ab_test2_females, measurevar = "correct", 
+#                            groupvars = c("Condition"))
+#abtest2_females_condition_se$se[1] <- f_ab2_e_se
+#abtest2_females_condition_se$se[2] <- f_ab2_n_se
+#(abtest2_females_condition_bar <- ggplot(mean_condition_abtest2_females, aes(Condition, mean, fill = Condition))+
+#  geom_bar(stat = "identity")+
+#  geom_jitter(data = correct_condition_ab_test2_females, aes(x = Condition, y = mean), width = .1)+
+#  geom_errorbar(aes(ymin = mean - abtest2_females_condition_se$se, ymax = mean + abtest2_females_condition_se$se),
+#                width = 0.2,
+#                position=position_dodge(.9))+
+#      labs(title = "Accuracy for Emotional and Neutral stimuli AB Test 1", x = "Condition",
+#       y = "Mean Accuracy"))
+#
+#abtest2_males_condition_se <- Rmisc::summarySE(ab_test2_males, measurevar = "correct", 
+#                            groupvars = c("Condition"))
+#abtest2_males_condition_se$se[1] <- m_ab2_e_se
+#abtest2_males_condition_se$se[2] <- m_ab2_n_se
+#(abtest2_males_condition_bar <- ggplot(mean_condition_abtest2_males, aes(Condition, mean, fill = Condition))+
+#  geom_bar(stat = "identity")+
+#  geom_jitter(data = correct_condition_ab_test2_males, aes(x = Condition, y = mean), width = .1)+
+#  geom_errorbar(aes(ymin = mean - abtest2_males_condition_se$se, ymax = mean + abtest2_males_condition_se$se),
+#                width = 0.2,
+#                position=position_dodge(.9))+
+#      labs(title = "Accuracy for Emotional and Neutral stimuli AB Test 1", x = "Condition",
+#       y = "Mean Accuracy"))
+```
+
+
+
+By Gender of stimuli
+```{r, plotting_ab_test2_gender}
+#Gender
+#abtest2_gender_line <- ggplot(correct_gender_ab_test2,
+#                               aes(subject_number, mean))+
+#  geom_point(aes(color = Gender), size = 3, alpha = .6)+
+#  geom_line(aes(group = subject_number))+
+#  labs(title = "AB Test 2: Accuracy for Male and Female stimuli by subject", x = #"Subject Number",
+#       y = "Mean Accuracy")
+#(abtest2_gender_line <- abtest2_gender_line + 
+#  theme(axis.text.x = element_text(angle = 90, hjust = 1)))
+
+#(abtest2_gender_violin <- ggplot(correct_gender_ab_test2, aes(Gender, mean))+
+#  geom_violin(alpha = 0.8, aes(fill = Gender))+
+#  geom_jitter(width = .1)+
+#  labs(title = "AB Test 2: Accuracy for Male and Female stimuli", x = "Gender",
+#       y = "Mean Accuracy"))
+#  
+#
+#abtest2_gender_se <- Rmisc::summarySE(ab_test2, measurevar = "correct", 
+#                            groupvars = c("Gender"))
+#(abtest2_gender_bar <- ggplot(mean_gender_abtest2, aes(Gender, mean, fill = Gender))+
+#  geom_bar(stat = "identity")+
+#  geom_jitter(data = correct_gender_ab_test2, aes(x = Gender, y = mean), width = .1)+
+#  geom_errorbar(aes(ymin = mean - abtest2_gender_se$se, ymax = mean + abtest2_gender_se$se),
+#                width = 0.2,
+#                position=position_dodge(.9))+
+#      labs(title = "AB Test 2: Accuracy for Male and Female stimuli", x = "Gender",
+#       y = "Mean Accuracy"))
+#
+####(abtest2_gender_point <- ggplot(correct_gender_ab_test2)+
+####  geom_jitter(width = .2, alpha = .8, aes(Gender, mean, color = Gender))+
+####  geom_pointrange(data = abtest2_gender_se, aes(x = Gender, y = correct, 
+####                  ymin = (correct - ci),
+####                  ymax = (correct + ci)))+
+####  labs(title = "Accuracy for Male and Female stimuli by subject", x = "Gender",
+####       y = "Mean Accuracy"))
+####
+####(abtest2_gender_boxplot <- ggplot(correct_gender_ab_test2, aes(Gender, mean))+
+####  geom_boxplot(aes(fill = Gender))+
+####  labs(title = "Accuracy for Male and Female stimuli by subject", x = "Gender",
+####       y = "Mean Accuracy"))
+```
+
+
+
+##By Condition and Gender 
+```{r, plotting_ab_test2_congender}
+#Conditional Gender
+#abtest2_congender_line <- ggplot(correct_congender_ab_test2,
+#                               aes(subject_number, mean))+
+#  geom_point(aes(color = C.Gender), size = 3, alpha = .6)+
+#  geom_line(aes(group = subject_number))+
+#  labs(title = "AB Test 2: Accuracy for Conditional Male and Female stimuli by #subject", x = "Subject Number",
+#       y = "Mean Accuracy")
+#(abtest2_congender_line <- abtest2_congender_line + 
+#  theme(axis.text.x = element_text(angle = 90, hjust = 1)))
+
+#(abtest2_congender_violin <- ggplot(correct_congender_ab_test2, aes(C.Gender, mean))+
+#  geom_violin(alpha = 0.8, aes(fill = C.Gender))+
+#  geom_jitter(width = .1)+
+#  labs(title = "AB Test 2: Accuracy for Neutral or Emotional Male and Female stimuli", x = "Gender",
+#       y = "Mean Accuracy"))
+  
+
+abtest2_congender_se <- Rmisc::summarySE(ab_test2, measurevar = "correct", 
+                            groupvars = c("C.Gender"))
+abtest2_congender_se$se[1] <- ab2_ef_se
+abtest2_congender_se$se[2] <- ab2_em_se
+abtest2_congender_se$se[3] <- ab2_nf_se
+abtest2_congender_se$se[4] <- ab2_nm_se
+(abtest2_congender_bar <- ggplot(mean_congender_abtest2, aes(C.Gender, mean, fill = C.Gender))+
+  geom_bar(stat = "identity")+
+  geom_jitter(data = correct_congender_ab_test2, aes(x = C.Gender, y = mean), width = .1)+
+  geom_errorbar(aes(ymin = mean - abtest2_congender_se$se, ymax = mean + abtest2_congender_se$se),
+                width = 0.2,
+                position=position_dodge(.9))+
+      labs(title = "AB Test 2: Accuracy for Neutral or Emotional Male and Female stimuli", x = "Gender",
+       y = "Mean Accuracy"))
+
+####(abtest2_congender_point <- ggplot(correct_congender_ab_test2)+
+####  geom_jitter(width = .2, alpha = .8, aes(C.Gender, mean, color = C.Gender))+
+####  geom_pointrange(data = abtest2_congender_se, aes(x = C.Gender, y = correct, 
+####                  ymin = (correct - ci),
+####                  ymax = (correct + ci)))+
+####  labs(title = "Accuracy for Male and Female stimuli by subject", x = "Gender",
+####       y = "Mean Accuracy"))
+####
+####(abtest2_congender_boxplot <- ggplot(correct_congender_ab_test2, aes(C.Gender, mean))+
+####  geom_boxplot(aes(fill = C.Gender))+
+####  labs(title = "Accuracy for Male and Female stimuli by subject", x = "Gender",
+####       y = "Mean Accuracy"))
+
+#Congender by subject gender
+#abtest2_females_congender_se <- Rmisc::summarySE(ab_test2_females, measurevar = "correct", 
+#                            groupvars = c("C.Gender"))
+#abtest2_females_congender_se$se[1] <- f_ab2_ef_se
+#abtest2_females_congender_se$se[2] <- f_ab2_em_se
+#abtest2_females_congender_se$se[3] <- f_ab2_nf_se
+#abtest2_females_congender_se$se[4] <- f_ab2_nm_se
+#(abtest2_females_congender_bar <- ggplot(mean_congender_abtest2_females, aes(C.Gender, mean, fill = C.Gender))+
+#  geom_bar(stat = "identity")+
+#  geom_jitter(data = correct_congender_ab_test2_females, aes(x = C.Gender, y = mean), width = .1)+
+#  geom_errorbar(aes(ymin = mean - abtest2_females_congender_se$se, ymax = mean + abtest2_females_congender_se$se),
+#                width = 0.2,
+#                position=position_dodge(.9))+
+#      labs(title = "Accuracy for Emotional or Neutral Male and Female stimuli Ab Test 1 ", x = "Gender",
+#       y = "Mean Accuracy"))
+#
+#abtest2_males_congender_se <- Rmisc::summarySE(ab_test2_males, measurevar = "correct", 
+#                            groupvars = c("C.Gender"))
+#abtest2_males_congender_se$se[1] <- m_ab2_ef_se
+#abtest2_males_congender_se$se[2] <- m_ab2_em_se
+#abtest2_males_congender_se$se[3] <- m_ab2_nf_se
+#abtest2_males_congender_se$se[4] <- m_ab2_nm_se
+#(abtest2_males_congender_bar <- ggplot(mean_congender_abtest2_males, aes(C.Gender, mean, fill = C.Gender))+
+#  geom_bar(stat = "identity")+
+#  geom_jitter(data = correct_congender_ab_test2_males, aes(x = C.Gender, y = mean), width = .1)+
+#  geom_errorbar(aes(ymin = mean - abtest2_males_congender_se$se, ymax = mean + abtest2_males_congender_se$se),
+#                width = 0.2,
+#                position=position_dodge(.9))+
+#      labs(title = "Accuracy for Emotional or Neutral Male and Female stimuli Ab Test 1 ", x = "Gender",
+#       y = "Mean Accuracy"))
+```
+
+
+
+#AB Test 3 Analysis
+```{r, ab_test3_analysis}
+#splitting by sub gender 
+#ab_test3 <- ab_test3 %>% 
+#  left_join(subject_gender)
+#
+#ab_test3_males <- ab_test3 %>% 
+#  filter(subject_gender == "male")
+#
+#ab_test3_females <- ab_test3 %>% 
+#  filter(subject_gender == "female")
+
+#Condition
+correct_condition_ab_test3 <- ab_test3 %>% 
+  group_by(Condition, subject_number) %>% 
+  summarise(mean = mean(correct),
+            sd = sd(correct))
+
+temp_ab3 <- correct_condition_ab_test3 %>% 
+  select(-sd) %>% 
+  spread(Condition, mean) %>% 
+  select('neutral','emotion')
+
+t.test(temp_ab3$neutral, temp_ab3$emotion, paired = TRUE, conf.level = .95)
+
+#Number of E>N, N>E, and E=N
+ab3_emotion_means <- correct_condition_ab_test3 %>% 
+  filter(Condition == "emotion")
+
+ab3_neutral_means <- correct_condition_ab_test3 %>% 
+  filter(Condition == "neutral") 
+
+ab3_greater <- ab3_emotion_means$mean > ab3_neutral_means$mean
+ab3_greater <- sum(ab3_greater)
+
+ab3_less <- ab3_emotion_means$mean < ab3_neutral_means$mean
+ab3_less <- sum(ab3_less)
+
+ab3_equal <- ab3_emotion_means$mean == ab3_neutral_means$mean
+ab3_equal <- sum(ab3_equal)
+
+#correct_condition_ab_test3_females <-  ab_test3_females %>% 
+#  group_by(Condition, subject_number) %>% 
+#  summarise(mean = mean(correct),
+#            sd = sd(correct))
+#
+#correct_condition_ab_test3_males <-  ab_test3_males %>% 
+#  group_by(Condition, subject_number) %>% 
+#  summarise(mean = mean(correct),
+#            sd = sd(correct))
+
+correct_gender_ab_test3 <- ab_test3 %>% 
+  group_by(Gender, subject_number) %>% 
+  summarise(mean = mean(correct),
+            sd = sd(correct))
+
+correct_congender_ab_test3 <- ab_test3 %>% 
+  group_by(C.Gender, subject_number) %>% 
+  summarise(mean = mean(correct),
+            sd = sd(correct))
+
+#correct_congender_ab_test3_females <-  ab_test3_females %>% 
+#  group_by(C.Gender, subject_number) %>% 
+#  summarise(mean = mean(correct),
+#            sd = sd(correct))
+#
+#correct_congender_ab_test3_males <-  ab_test3_males %>% 
+#  group_by(C.Gender, subject_number) %>% 
+#  summarise(mean = mean(correct),
+#            sd = sd(correct))
+
+#Overall mean
+mean_condition_abtest3 <- ab_test3 %>% 
+  group_by(Condition) %>% 
+  summarise(mean = mean(correct))
+
+#mean_condition_abtest3_females <- ab_test3_females %>% 
+#  group_by(Condition) %>% 
+#  summarise(mean = mean(correct))
+#
+#mean_condition_abtest3_males <- ab_test3_males %>% 
+#  group_by(Condition) %>% 
+#  summarise(mean = mean(correct))
+
+mean_gender_abtest3 <- ab_test3 %>% 
+  group_by(Gender) %>% 
+  summarise(mean = mean(correct))
+
+mean_congender_abtest3 <- ab_test3 %>% 
+  group_by(C.Gender) %>% 
+  summarise(mean = mean(correct))
+
+#mean_congender_abtest3_females <- ab_test3_females %>% 
+#  group_by(C.Gender) %>% 
+#  summarise(mean = mean(correct))
+#
+#mean_congender_abtest3_males <- ab_test3_males %>% 
+#  group_by(C.Gender) %>% 
+#  summarise(mean = mean(correct))
+
+
+#Reaction Time
+rt_condition_ab_test3 <- ab_test3 %>% 
+  group_by(Condition, subject_number) %>% 
+  summarise(median = median(rt,na.rm = TRUE),
+            sd = sd(rt,na.rm = TRUE))
+
+rt_gender_ab_test3 <- ab_test3 %>% 
+  group_by(Gender, subject_number) %>% 
+  summarise(median = median(rt,na.rm = TRUE),
+            sd = sd(rt,na.rm = TRUE))
+
+temp_ab3_rt <- rt_gender_ab_test3 %>% 
+  select(-sd) %>% 
+  spread(Gender, median) %>% 
+  select('female','male')
+
+abtest3_rt_ttest <- t.test(temp_ab3_rt$female, temp_ab3_rt$male, paired = TRUE, conf.level = .95)
+
+rt_congender_ab_test3 <- ab_test3 %>% 
+  group_by(C.Gender, subject_number) %>% 
+  summarise(median = median(rt,na.rm = TRUE),
+            sd = sd(rt,na.rm = TRUE))
+
+#Mean of median reaction times
+rt_mean_condition_abtest3 <-  rt_condition_ab_test3 %>% 
+  group_by(Condition) %>% 
+  summarise(mean = mean(median))
+
+rt_mean_gender_abtest3 <- rt_gender_ab_test3 %>% 
+  group_by(Gender) %>% 
+  summarise(mean = mean(median))
+
+rt_mean_congender_abtest3 <- rt_congender_ab_test3 %>% 
+  group_by(C.Gender) %>% 
+  summarise(mean = mean(median))
+```
+There were `r ab3_greater` E>N, `r ab3_less` N>E and `r ab3_equal` E=N in AB Test 3.
+
+
+#AB Test 3 Plots
+##By Condition
+```{r, plotting_ab_test3_condition}
+#Condition
+abtest3_condition_line <- ggplot(correct_condition_ab_test3,
+                               aes(subject_number, mean))+
+  geom_point(aes(color = Condition), size = 3, alpha = .6)+
+  geom_line(aes(group = subject_number))+
+  labs(title = "AB Test 3: Accuracy for Emotional and Neutral stimuli by subject", x = "Subject Number",
+       y = "Mean Accuracy")
+(abtest3_condition_line <- abtest3_condition_line + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)))
+
+#(abtest3_condition_violin <- ggplot(correct_condition_ab_test3, aes(Condition, mean))+
+#  geom_violin(alpha = 0.8, aes(fill = Condition))+
+#  geom_jitter(width = .1)+
+#  labs(title = "AB Test 3: Accuracy for Emotional and Neutral stimuli", x = "Condition",
+#       y = "Mean Accuracy"))
+  
+
+abtest3_condition_se <- Rmisc::summarySE(ab_test3, measurevar = "correct", 
+                            groupvars = c("Condition"))
+abtest3_condition_se$se[1] <- ab3_e_se
+abtest3_condition_se$se[2] <- ab3_n_se
+(abtest3_condition_bar <- ggplot(mean_condition_abtest3, aes(Condition, mean, fill = Condition))+
+  geom_bar(stat = "identity")+
+  geom_jitter(data = correct_condition_ab_test3, aes(x = Condition, y = mean), width = .1)+
+  geom_errorbar(aes(ymin = mean - abtest3_condition_se$se, ymax = mean + abtest3_condition_se$se),
+                width = 0.2,
+                position=position_dodge(.9))+
+      labs(title = "AB Test 3: Accuracy for Emotional and Neutral stimuli", x = "Condition",
+       y = "Mean Accuracy"))
+
+(abtest3_condition_bar_line <- ggplot(mean_condition_abtest3, aes(Condition, mean, fill = Condition))+
+  geom_bar(stat = "identity")+
+  geom_point(data = correct_condition_ab_test3, aes(x = Condition, y = mean))+
+  geom_line(data = correct_condition_ab_test3, aes(x = Condition, y = mean, group = subject_number))+
+  geom_errorbar(aes(ymin = mean - abtest3_condition_se$se, ymax = mean + abtest3_condition_se$se),
+                width = 0.2,
+                position=position_dodge(.9))+
+      labs(title = "AB Test 3: Accuracy for Emotional and Neutral stimuli", x = "Condition",
+       y = "Mean Accuracy"))
+
+####(abtest3_condition_point <- ggplot(correct_condition_ab_test3)+
+####  geom_jitter(width = .2, alpha = .8, aes(Condition, mean, color = Condition))+
+####  geom_pointrange(data = abtest3_condition_se, aes(x = Condition, y = correct, 
+####                  ymin = (correct - ci),
+####                  ymax = (correct + ci)))+
+####  labs(title = "Accuracy for Emotional and Neutral stimuli by subject", x = "Condition",
+####       y = "Mean Accuracy"))
+####
+####(abtest3_condition_boxplot <- ggplot(correct_condition_ab_test3, aes(Condition, mean))+
+####  geom_boxplot(aes(fill = Condition))+
+####  labs(title = "Accuracy for Emotional and Neutral stimuli by subject", x = "Condition",
+####       y = "Mean Accuracy"))
+
+#condition by subject gender
+#abtest3_females_condition_se <- Rmisc::summarySE(ab_test3_females, measurevar = "correct", 
+#                            groupvars = c("Condition"))
+#abtest3_females_condition_se$se[1] <- f_ab3_e_se
+#abtest3_females_condition_se$se[2] <- f_ab3_n_se
+#(abtest3_females_condition_bar <- ggplot(mean_condition_abtest3_females, aes(Condition, mean, fill = Condition))+
+#  geom_bar(stat = "identity")+
+#  geom_jitter(data = correct_condition_ab_test3_females, aes(x = Condition, y = mean), width = .1)+
+#  geom_errorbar(aes(ymin = mean - abtest3_females_condition_se$se, ymax = mean + abtest3_females_condition_se$se),
+#                width = 0.2,
+#                position=position_dodge(.9))+
+#      labs(title = "Accuracy for Emotional and Neutral stimuli AB Test 1", x = "Condition",
+#       y = "Mean Accuracy"))
+#
+#abtest3_males_condition_se <- Rmisc::summarySE(ab_test3_males, measurevar = "correct", 
+#                            groupvars = c("Condition"))
+#abtest3_males_condition_se$se[1] <- m_ab3_e_se
+#abtest3_males_condition_se$se[2] <- m_ab3_n_se
+#(abtest3_males_condition_bar <- ggplot(mean_condition_abtest3_males, aes(Condition, mean, fill = Condition))+
+#  geom_bar(stat = "identity")+
+#  geom_jitter(data = correct_condition_ab_test3_males, aes(x = Condition, y = mean), width = .1)+
+#  geom_errorbar(aes(ymin = mean - abtest3_males_condition_se$se, ymax = mean + abtest3_males_condition_se$se),
+#                width = 0.2,
+#                position=position_dodge(.9))+
+#      labs(title = "Accuracy for Emotional and Neutral stimuli AB Test 1", x = "Condition",
+#       y = "Mean Accuracy"))
+```
+
+
+
+By Gender of Stimuli
+```{r, plotting_ab_test3_gender}
+#Gender
+#abtest3_gender_line <- ggplot(correct_gender_ab_test3,
+#                               aes(subject_number, mean))+
+#  geom_point(aes(color = Gender), size = 3, alpha = .6)+
+#  geom_line(aes(group = subject_number))+
+#  labs(title = "AB Test 3: Accuracy for Male and Female stimuli by subject", x = #"Subject Number",
+#       y = "Mean Accuracy")
+#(abtest3_gender_line <- abtest3_gender_line + 
+#  theme(axis.text.x = element_text(angle = 90, hjust = 1)))
+
+#(abtest3_gender_violin <- ggplot(correct_gender_ab_test3, aes(Gender, mean))+
+#  geom_violin(alpha = 0.8, aes(fill = Gender))+
+#  geom_jitter(width = .1)+
+#  labs(title = "AB Test 3: Accuracy for Male and Female stimuli", x = "Gender",
+#       y = "Mean Accuracy"))
+#  
+#
+#abtest3_gender_se <- Rmisc::summarySE(ab_test3, measurevar = "correct", 
+#                            groupvars = c("Gender"))
+#(abtest3_gender_bar <- ggplot(mean_gender_abtest3, aes(Gender, mean, fill = Gender))+
+#  geom_bar(stat = "identity")+
+#  geom_jitter(data = correct_gender_ab_test3, aes(x = Gender, y = mean), width = .1)+
+#  geom_errorbar(aes(ymin = mean - abtest3_gender_se$se, ymax = mean + abtest3_gender_se$se),
+#                width = 0.2,
+#                position=position_dodge(.9))+
+#      labs(title = "AB Test 3: Accuracy for Male and Female stimuli", x = "Gender",
+#       y = "Mean Accuracy"))
+
+####(abtest3_gender_point <- ggplot(correct_gender_ab_test3)+
+####  geom_jitter(width = .2, alpha = .8, aes(Gender, mean, color = Gender))+
+####  geom_pointrange(data = abtest3_gender_se, aes(x = Gender, y = correct, 
+####                  ymin = (correct - ci),
+####                  ymax = (correct + ci)))+
+####  labs(title = "Accuracy for Male and Female stimuli by subject", x = "Gender",
+####       y = "Mean Accuracy"))
+####
+####(abtest3_gender_boxplot <- ggplot(correct_gender_ab_test3, aes(Gender, mean))+
+####  geom_boxplot(aes(fill = Gender))+
+####  labs(title = "Accuracy for Male and Female stimuli by subject", x = "Gender",
+####       y = "Mean Accuracy"))
+```
+
+
+
+##By condition and Gender
+```{r, plotting_ab_test3_congender}
+#Conditional Gender
+#abtest3_congender_line <- ggplot(correct_congender_ab_test3,
+#                               aes(subject_number, mean))+
+#  geom_point(aes(color = C.Gender), size = 3, alpha = .6)+
+#  geom_line(aes(group = subject_number))+
+#  labs(title = "AB Test 3: Accuracy for Conditional Male and Female stimuli by #subject", x = "Subject Number",
+#       y = "Mean Accuracy")
+#(abtest3_congender_line <- abtest3_congender_line + 
+#  theme(axis.text.x = element_text(angle = 90, hjust = 1)))
+
+#(abtest3_congender_violin <- ggplot(correct_congender_ab_test3, aes(C.Gender, mean))+
+#  geom_violin(alpha = 0.8, aes(fill = C.Gender))+
+#  geom_jitter(width = .1)+
+#  labs(title = "AB Test 3: Accuracy for Male and Female stimuli", x = "Gender",
+#       y = "Mean Accuracy"))
+  
+
+abtest3_congender_se <- Rmisc::summarySE(ab_test3, measurevar = "correct", 
+                            groupvars = c("C.Gender"))
+abtest3_congender_se$se[1] <- ab3_ef_se
+abtest3_congender_se$se[2] <- ab3_em_se
+abtest3_congender_se$se[3] <- ab3_nf_se
+abtest3_congender_se$se[4] <- ab3_nm_se
+(abtest3_congender_bar <- ggplot(mean_congender_abtest3, aes(C.Gender, mean, fill = C.Gender))+
+  geom_bar(stat = "identity")+
+  geom_jitter(data = correct_congender_ab_test3, aes(x = C.Gender, y = mean), width = .1)+
+  geom_errorbar(aes(ymin = mean - abtest3_congender_se$se, ymax = mean + abtest3_congender_se$se),
+                width = 0.2,
+                position=position_dodge(.9))+
+      labs(title = "AB Test 3: Accuracy for Neutral or Emotional Male and Female stimuli", x = "Gender",
+       y = "Mean Accuracy"))
+
+####(abtest3_congender_point <- ggplot(correct_congender_ab_test3)+
+####  geom_jitter(width = .2, alpha = .8, aes(C.Gender, mean, color = C.Gender))+
+####  geom_pointrange(data = abtest3_congender_se, aes(x = C.Gender, y = correct, 
+####                  ymin = (correct - ci),
+####                  ymax = (correct + ci)))+
+####  labs(title = "Accuracy for Male and Female stimuli by subject", x = "Gender",
+####       y = "Mean Accuracy"))
+####
+####(abtest3_congender_boxplot <- ggplot(correct_congender_ab_test3, aes(C.Gender, mean))+
+####  geom_boxplot(aes(fill = C.Gender))+
+####  labs(title = "Accuracy for Male and Female stimuli by subject", x = "Gender",
+####       y = "Mean Accuracy"))
+
+#Congender by subject gender
+#abtest3_females_congender_se <- Rmisc::summarySE(ab_test3_females, measurevar = "correct", 
+#                            groupvars = c("C.Gender"))
+#abtest3_females_congender_se$se[1] <- f_ab3_ef_se
+#abtest3_females_congender_se$se[2] <- f_ab3_em_se
+#abtest3_females_congender_se$se[3] <- f_ab3_nf_se
+#abtest3_females_congender_se$se[4] <- f_ab3_nm_se
+#(abtest3_females_congender_bar <- ggplot(mean_congender_abtest3_females, aes(C.Gender, mean, fill = C.Gender))+
+#  geom_bar(stat = "identity")+
+#  geom_jitter(data = correct_congender_ab_test3_females, aes(x = C.Gender, y = mean), width = .1)+
+#  geom_errorbar(aes(ymin = mean - abtest3_females_congender_se$se, ymax = mean + abtest3_females_congender_se$se),
+#                width = 0.2,
+#                position=position_dodge(.9))+
+#      labs(title = "Accuracy for Emotional or Neutral Male and Female stimuli Ab Test 1 ", x = "Gender",
+#       y = "Mean Accuracy"))
+#
+#abtest3_males_congender_se <- Rmisc::summarySE(ab_test3_males, measurevar = "correct", 
+#                            groupvars = c("C.Gender"))
+#abtest3_males_congender_se$se[1] <- m_ab3_ef_se
+#abtest3_males_congender_se$se[2] <- m_ab3_em_se
+#abtest3_males_congender_se$se[3] <- m_ab3_nf_se
+#abtest3_males_congender_se$se[4] <- m_ab3_nm_se
+#(abtest3_males_congender_bar <- ggplot(mean_congender_abtest3_males, aes(C.Gender, mean, fill = C.Gender))+
+#  geom_bar(stat = "identity")+
+#  geom_jitter(data = correct_congender_ab_test3_males, aes(x = C.Gender, y = mean), width = .1)+
+#  geom_errorbar(aes(ymin = mean - abtest3_males_congender_se$se, ymax = mean + abtest3_males_congender_se$se),
+#                width = 0.2,
+#                position=position_dodge(.9))+
+#      labs(title = "Accuracy for Emotional or Neutral Male and Female stimuli Ab Test 1 ", x = "Gender",
+#       y = "Mean Accuracy"))
+```
+
+
+
+#AC Analysis
+```{r, ac_analysis}
+#splitting by sub gender 
+#ac <- ac %>% 
+#  left_join(subject_gender)
+#
+#ac_males <- ac %>% 
+#  filter(subject_gender == "male")
+#
+#ac_females <- ac %>% 
+#  filter(subject_gender == "female")
+
+#Condition
+correct_condition_ac <- ac %>% 
+  group_by(Condition, subject_number) %>% 
+  summarise(mean = mean(correct),
+            sd = sd(correct))
+
+#correct_condition_ac_females <-  ac_females %>% 
+#  group_by(Condition, subject_number) %>% 
+#  summarise(mean = mean(correct),
+#            sd = sd(correct))
+#
+#correct_condition_ac_males <-  ac_males %>% 
+#  group_by(Condition, subject_number) %>% 
+#  summarise(mean = mean(correct),
+#            sd = sd(correct))
+
+temp_ac <- correct_condition_ac %>% 
+  select(-sd) %>% 
+  spread(Condition, mean) %>% 
+  select('neutral','emotion')
+
+t.test(temp_ac$neutral, temp_ac$emotion, paired = TRUE, conf.level = .95)
+
+#Number of E>N, N>E, and E=N
+ac_emotion_means <- correct_condition_ac %>% 
+  filter(Condition == "emotion")
+
+ac_neutral_means <- correct_condition_ac %>% 
+  filter(Condition == "neutral") 
+
+ac_greater <- ac_emotion_means$mean > ac_neutral_means$mean
+ac_greater <- sum(ac_greater)
+
+ac_less <- ac_emotion_means$mean < ac_neutral_means$mean
+ac_less <- sum(ac_less)
+
+ac_equal <- ac_emotion_means$mean == ac_neutral_means$mean
+ac_equal <- sum(ac_equal)
+
+
+#gender
+correct_gender_ac <- ac %>% 
+  group_by(Gender, subject_number) %>% 
+  summarise(mean = mean(correct),
+            sd = sd(correct))
+
+correct_congender_ac <- ac %>% 
+  group_by(C.Gender, subject_number) %>% 
+  summarise(mean = mean(correct),
+            sd = sd(correct))
+
+#table6 <- correct_congender_ac %>% 
+#  select(-sd) %>% 
+#  spread(C.Gender, mean)
+#
+#t.test(table6$`emotion male`, table6$`emotion female`, paired = TRUE, conf.level = .95)
+
+#correct_congender_by_subgender_ac <- ac %>% 
+#  group_by(subject_gender, C.Gender, subject_number) %>% 
+#  summarise(mean = mean(correct),
+#            sd = sd(correct))
+#
+#correct_congender_ac_females <-  ac_females %>% 
+#  group_by(C.Gender, subject_number) %>% 
+#  summarise(mean = mean(correct),
+#            sd = sd(correct))
+#
+#correct_congender_ac_males <-  ac_males %>% 
+#  group_by(C.Gender, subject_number) %>% 
+#  summarise(mean = mean(correct),
+#            sd = sd(correct))
+
+Correct_item_ac <- ac %>% 
+  select("subject_number","C.Gender", "correct", "a","b","c") %>% 
+  gather(abc, item_number, -1:-3) %>% 
+  filter(abc == "b") %>% 
+  group_by(C.Gender, item_number) %>% 
+  summarise(mean = mean(correct))
+
+
+#Overall Mean
+mean_condition_ac <- ac %>% 
+  group_by(Condition) %>% 
+  summarise(mean = mean(correct))
+
+#mean_condition_by_subgender_ac <- ac %>% 
+#  group_by(subject_gender, Condition) %>% 
+#  summarise(mean = mean(correct))
+#
+#mean_condition_ac_females <- ac_females %>% 
+#  group_by(Condition) %>% 
+#  summarise(mean = mean(correct))
+#
+#mean_condition_ac_males <- ac_males %>% 
+#  group_by(Condition) %>% 
+#  summarise(mean = mean(correct))
+
+mean_gender_ac <- ac %>% 
+  group_by(Gender) %>% 
+  summarise(mean = mean(correct))
+
+mean_congender_ac <- ac %>% 
+  group_by(C.Gender) %>% 
+  summarise(mean = mean(correct))
+
+#mean_congender_by_subgender_ac <- ac %>% 
+#  group_by(subject_gender, C.Gender) %>% 
+#  summarise(mean = mean(correct))
+#
+#mean_congender_ac_females <- ac_females %>% 
+#  group_by(C.Gender) %>% 
+#  summarise(mean = mean(correct))
+#
+#mean_congender_ac_males <- ac_males %>% 
+#  group_by(C.Gender) %>% 
+#  summarise(mean = mean(correct))
+
+
+#Reaction Times
+rt_condition_ac <- ac %>% 
+  group_by(Condition, subject_number) %>% 
+  summarise(median = median(rt,na.rm = TRUE),
+            sd = sd(rt,na.rm = TRUE))
+
+#table4 <- rt_condition_ac %>% 
+#  select(-sd) %>% 
+#  spread(Condition, median) %>% 
+#  select('neutral', 'emotion')
+#
+#t.test(table4$neutral, table4$emotion, paired = TRUE, conf.level = .95)
+#
+rt_gender_ac <- ac %>% 
+  group_by(Gender, subject_number) %>% 
+  summarise(median = median(rt,na.rm = TRUE),
+            sd = sd(rt,na.rm = TRUE))
+
+temp_ac_rt <- rt_gender_ac %>% 
+  select(-sd) %>% 
+  spread(Gender, median) %>% 
+  select('female','male')
+
+ac_rt_ttest <- t.test(temp_ac_rt$female, temp_ac_rt$male, paired = TRUE, conf.level = .95)
+
+rt_congender_ac <- ac %>% 
+  group_by(C.Gender, subject_number) %>% 
+  summarise(median = median(rt,na.rm = TRUE),
+            sd = sd(rt,na.rm = TRUE))
+
+#Mean of median reaction times
+rt_mean_condition_ac <-  rt_condition_ac %>% 
+  group_by(Condition) %>% 
+  summarise(mean = mean(median))
+
+rt_mean_gender_ac <- rt_gender_ac %>% 
+  group_by(Gender) %>% 
+  summarise(mean = mean(median))
+
+rt_mean_congender_ac <- rt_congender_ac %>% 
+  group_by(C.Gender) %>% 
+  summarise(mean = mean(median))
+```
+There were `r ac_greater` E>N, `r ac_less` N>E and `r ac_equal` E=N in AC Test.
+
+
+#AC Plots
+##By Condition
+```{r, plotting_ac_condition}
+#Condition
+ac_condition_line <- ggplot(correct_condition_ac,
+                               aes(subject_number, mean))+
+  geom_point(aes(color = Condition), size = 3, alpha = .6)+
+  geom_line(aes(group = subject_number))+
+  labs(title = "AC: Accuracy for Emotional and Neutral stimuli by subject", x = "Subject Number",
+       y = "Mean Accuracy")
+(ac_condition_line <- ac_condition_line + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)))
+
+#(ac_condition_violin <- ggplot(correct_condition_ac, aes(Condition, mean))+
+#  geom_violin(alpha = 0.8, aes(fill = Condition))+
+#  geom_jitter(width = .1)+
+#  labs(title = "AC: Accuracy for Emotional and Neutral stimuli", x = "Condition",
+#       y = "Mean Accuracy"))
+  
+
+ac_condition_se <- Rmisc::summarySE(ac, measurevar = "correct", 
+                            groupvars = c("Condition"))
+ac_condition_se$se[1] <- ac_e_se
+ac_condition_se$se[2] <- ac_e_se
+(ac_condition_bar <- ggplot(mean_condition_ac, aes(Condition, mean, fill = Condition))+
+  geom_bar(stat = "identity")+
+  geom_jitter(data = correct_condition_ac, aes(x = Condition, y = mean), width = .1)+
+  geom_errorbar(aes(ymin = mean - ac_condition_se$se, ymax = mean + ac_condition_se$se),
+                width = 0.2,
+                position=position_dodge(.9))+
+      labs(title = "AC: Accuracy for Emotional and Neutral stimuli", x = "Condition",
+       y = "Mean Accuracy"))
+
+(ac_condition_bar_line <- ggplot(mean_condition_ac, aes(Condition, mean, fill = Condition))+
+  geom_bar(stat = "identity")+
+  geom_point(data = correct_condition_ac, aes(x = Condition, y = mean))+
+  geom_line(data = correct_condition_ac, aes(x = Condition, y = mean, group = subject_number))+
+  geom_errorbar(aes(ymin = mean - ac_condition_se$se, ymax = mean + ac_condition_se$se),
+                width = 0.2,
+                position=position_dodge(.9))+
+      labs(title = "AC: Accuracy for Emotional and Neutral stimuli", x = "Condition",
+       y = "Mean Accuracy"))
+
+#ac_condition_by_subgender_se <- Rmisc::summarySE(ac, measurevar = "correct", 
+#                            groupvars = c("Condition", "subject_gender"))
+#(ac_condition_bar <- ggplot(mean_condition_by_subgender_ac, aes(Condition, mean, fill = Condition))+
+#  geom_bar(stat = "identity")+
+#  geom_jitter(data = correct_condition_by_subgender_ac, aes(x = Condition, y = mean), width = .1)+
+#  geom_errorbar(aes(ymin = mean - ac_condition_se$se, ymax = mean + ac_condition_se$se),
+#                width = 0.2,
+#                position=position_dodge(.9))+
+#      labs(title = "Accuracy for Emotional and Neutral stimuli by subject", x = "Condition",
+#       y = "Mean Accuracy")+
+#    facet_wrap(~subject_gender))
+
+####(ac_condition_point <- ggplot(correct_condition_ac)+
+####  geom_jitter(width = .2, alpha = .8, aes(Condition, mean, color = Condition))+
+####  geom_pointrange(data = ac_condition_se, aes(x = Condition, y = correct, 
+####                  ymin = (correct - ci),
+####                  ymax = (correct + ci)))+
+####  labs(title = "Accuracy for Emotional and Neutral stimuli by subject", x = "Condition",
+####       y = "Mean Accuracy"))
+####
+####(ac_condition_boxplot <- ggplot(correct_condition_ac, aes(Condition, mean))+
+####  geom_boxplot(aes(fill = Condition))+
+####  labs(title = "Accuracy for Emotional and Neutral stimuli by subject", x = "Condition",
+####       y = "Mean Accuracy"))
+
+#condition by subject gender
+#ac_females_condition_se <- Rmisc::summarySE(ac_females, measurevar = "correct", 
+#                            groupvars = c("Condition"))
+#ac_females_condition_se$se[1] <- f_ac_e_se
+#ac_females_condition_se$se[2] <- f_ac_n_se
+#(ac_females_condition_bar <- ggplot(mean_condition_ac_females, aes(Condition, mean, fill = Condition))+
+#  geom_bar(stat = "identity")+
+#  geom_jitter(data = correct_condition_ac_females, aes(x = Condition, y = mean), width = .1)+
+#  geom_errorbar(aes(ymin = mean - ac_females_condition_se$se, ymax = mean + ac_females_condition_se$se),
+#                width = 0.2,
+#                position=position_dodge(.9))+
+#      labs(title = "Accuracy for Emotional and Neutral stimuli AB Test 1", x = "Condition",
+#       y = "Mean Accuracy"))
+#
+#ac_males_condition_se <- Rmisc::summarySE(ac_males, measurevar = "correct", 
+#                            groupvars = c("Condition"))
+#ac_males_condition_se$se[1] <- m_ac_e_se
+#ac_males_condition_se$se[2] <- m_ac_n_se
+#(ac_males_condition_bar <- ggplot(mean_condition_ac_males, aes(Condition, mean, fill = Condition))+
+#  geom_bar(stat = "identity")+
+#  geom_jitter(data = correct_condition_ac_males, aes(x = Condition, y = mean), width = .1)+
+#  geom_errorbar(aes(ymin = mean - ac_males_condition_se$se, ymax = mean + ac_males_condition_se$se),
+#                width = 0.2,
+#                position=position_dodge(.9))+
+#      labs(title = "Accuracy for Emotional and Neutral stimuli AB Test 1", x = "Condition",
+#       y = "Mean Accuracy"))
+```
+
+
+
+By Gender of Stimuli
+```{r, plotting_ac_gender}
+#Gender
+#ac_gender_line <- ggplot(correct_gender_ac,
+#                               aes(subject_number, mean))+
+#  geom_point(aes(color = Gender), size = 3, alpha = .6)+
+#  geom_line(aes(group = subject_number))+
+#  labs(title = "AC: Accuracy for Male and Female stimuli by subject", x = "Subject #Number",
+#       y = "Mean Accuracy")
+#(ac_gender_line <- ac_gender_line + 
+#  theme(axis.text.x = element_text(angle = 90, hjust = 1)))
+
+#(ac_gender_violin <- ggplot(correct_gender_ac, aes(Gender, mean))+
+#  geom_violin(alpha = 0.8, aes(fill = Gender))+
+#  geom_jitter(width = .1)+
+#  labs(title = "AC: Accuracy for Male and Female stimuli", x = "Gender",
+#       y = "Mean Accuracy"))
+#  
+#
+#ac_gender_se <- Rmisc::summarySE(ac, measurevar = "correct", 
+#                            groupvars = c("Gender"))
+#(ac_gender_bar <- ggplot(mean_gender_ac, aes(Gender, mean, fill = Gender))+
+#  geom_bar(stat = "identity")+
+#  geom_jitter(data = correct_gender_ac, aes(x = Gender, y = mean), width = .1)+
+#  geom_errorbar(aes(ymin = mean - ac_gender_se$se, ymax = mean + ac_gender_se$se),
+#                width = 0.2,
+#                position=position_dodge(.9))+
+#      labs(title = "AC: Accuracy for Male and Female stimuli", x = "Gender",
+#       y = "Mean Accuracy"))
+
+####(ac_gender_point <- ggplot(correct_gender_ac)+
+####  geom_jitter(width = .2, alpha = .8, aes(Gender, mean, color = Gender))+
+####  geom_pointrange(data = ac_gender_se, aes(x = Gender, y = correct, 
+####                  ymin = (correct - ci),
+####                  ymax = (correct + ci)))+
+####  labs(title = "Accuracy for Male and Female stimuli by subject", x = "Gender",
+####       y = "Mean Accuracy"))
+####
+####(ac_gender_boxplot <- ggplot(correct_gender_ac, aes(Gender, mean))+
+####  geom_boxplot(aes(fill = Gender))+
+####  labs(title = "Accuracy for Male and Female stimuli by subject", x = "Gender",
+####       y = "Mean Accuracy"))
+```
+
+
+
+##By Condition and Gender
+```{r, plotting_ac_congender}
+#Conditional Gender
+#ac_congender_line <- ggplot(correct_congender_ac,
+#                               aes(subject_number, mean))+
+#  geom_point(aes(color = C.Gender), size = 3, alpha = .6)+
+#  geom_line(aes(group = subject_number))+
+#  labs(title = "AC: Accuracy for Conditional Male and Female stimuli by subject", x = "Subject Number",
+#       y = "Mean Accuracy")
+#(ac_congender_line <- ac_congender_line + 
+#  theme(axis.text.x = element_text(angle = 90, hjust = 1)))
+
+#(ac_congender_violin <- ggplot(correct_congender_ac, aes(C.Gender, mean))+
+#  geom_violin(alpha = 0.8, aes(fill = C.Gender))+
+#  geom_jitter(width = .1)+
+#  labs(title = "AC: Accuracy for Male and Female stimuli", x = "Gender",
+#       y = "Mean Accuracy"))
+  
+ac_congender_se <- Rmisc::summarySE(ac, measurevar = "correct", 
+                            groupvars = c("C.Gender"))
+ac_congender_se$se[1] <- ac_ef_se
+ac_congender_se$se[2] <- ac_em_se
+ac_congender_se$se[3] <- ac_nf_se
+ac_congender_se$se[4] <- ac_nm_se
+(ac_congender_by_subgender_bar <- ggplot(mean_congender_ac, aes(C.Gender, mean, fill = C.Gender))+
+  geom_bar(stat = "identity")+
+  geom_jitter(data = correct_congender_ac, aes(x = C.Gender, y = mean), width = .1)+
+  geom_errorbar(aes(ymin = mean - ac_congender_se$se, ymax = mean + ac_congender_se$se),
+                width = 0.2,
+                position=position_dodge(.9))+
+      labs(title = "AC: Accuracy for Neutral or Emotional Male and Female stimuli", x = "Gender",
+       y = "Mean Accuracy"))
+
+#ac_congender_by_subgender_se <- Rmisc::summarySE(ac, measurevar = "correct", 
+#                            groupvars = c("C.Gender", "subject_gender"))
+#(ac_congender_by_subgender_bar <- ggplot(mean_congender_by_subgender_ac, aes(C.Gender, mean, fill = C.Gender))+
+#  geom_bar(stat = "identity")+
+#  geom_jitter(data = correct_congender_by_subgender_ac, aes(x = C.Gender, y = mean), width = .1)+
+#  geom_errorbar(aes(ymin = mean - ac_congender_se$se, ymax = mean + ac_congender_se$se),
+#                width = 0.2,
+#                position=position_dodge(.9))+
+#      labs(title = "Accuracy for Male and Female stimuli by subject", x = "Gender",
+#       y = "Mean Accuracy")+
+#    facet_wrap(~subject_gender))
+
+####(ac_congender_point <- ggplot(correct_congender_ac)+
+####  geom_jitter(width = .2, alpha = .8, aes(C.Gender, mean, color = C.Gender))+
+####  geom_pointrange(data = ac_congender_se, aes(x = C.Gender, y = correct, 
+####                  ymin = (correct - ci),
+####                  ymax = (correct + ci)))+
+####  labs(title = "Accuracy for Male and Female stimuli by subject", x = "Gender",
+####       y = "Mean Accuracy"))
+####
+####(ac_congender_boxplot <- ggplot(correct_congender_ac, aes(C.Gender, mean))+
+####  geom_boxplot(aes(fill = C.Gender))+
+####  labs(title = "Accuracy for Male and Female stimuli by subject", x = "Gender",
+####       y = "Mean Accuracy"))
+
+#Congender by subject gender
+#ac_females_congender_se <- Rmisc::summarySE(ac_females, measurevar = "correct", 
+#                            groupvars = c("C.Gender"))
+#ac_females_congender_se$se[1] <- f_ac_ef_se
+#ac_females_congender_se$se[2] <- f_ac_em_se
+#ac_females_congender_se$se[3] <- f_ac_nf_se
+#ac_females_congender_se$se[4] <- f_ac_nm_se
+#(ac_females_congender_bar <- ggplot(mean_congender_ac_females, aes(C.Gender, mean, fill = C.Gender))+
+#  geom_bar(stat = "identity")+
+#  geom_jitter(data = correct_congender_ac_females, aes(x = C.Gender, y = mean), width = .1)+
+#  geom_errorbar(aes(ymin = mean - ac_females_congender_se$se, ymax = mean + ac_females_congender_se$se),
+#                width = 0.2,
+#                position=position_dodge(.9))+
+#      labs(title = "Accuracy for Emotional or Neutral Male and Female stimuli Ab Test 1 ", x = "Gender",
+#       y = "Mean Accuracy"))
+#
+#ac_males_congender_se <- Rmisc::summarySE(ac_males, measurevar = "correct", 
+#                            groupvars = c("C.Gender"))
+#ac_males_congender_se$se[1] <- m_ac_ef_se
+#ac_males_congender_se$se[2] <- m_ac_em_se
+#ac_males_congender_se$se[3] <- m_ac_nf_se
+#ac_males_congender_se$se[4] <- m_ac_nm_se
+#(ac_males_congender_bar <- ggplot(mean_congender_ac_males, aes(C.Gender, mean, fill = C.Gender))+
+#  geom_bar(stat = "identity")+
+#  geom_jitter(data = correct_congender_ac_males, aes(x = C.Gender, y = mean), width = .1)+
+#  geom_errorbar(aes(ymin = mean - ac_males_congender_se$se, ymax = mean + ac_males_congender_se$se),
+#                width = 0.2,
+#                position=position_dodge(.9))+
+#      labs(title = "Accuracy for Emotional or Neutral Male and Female stimuli Ab Test 1 ", x = "Gender",
+#       y = "Mean Accuracy"))
+```
+
+
+
+#Posttest Analysis
+```{r, posttest_analysis}
+#splitting by sub gender 
+#posttest <- posttest %>% 
+#  left_join(subject_gender)
+#
+#posttest_ab_females <- posttest %>% 
+#  filter(abbcac == "AB" & subject_gender == "female")
+#
+#posttest_ab_males <- posttest %>% 
+#  filter(abbcac == "AB" & subject_gender == "male")
+#
+#posttest_bc_females <- posttest %>% 
+#  filter(abbcac == "BC" & subject_gender == "female")
+#
+#posttest_bc_males <- posttest %>% 
+#  filter(abbcac == "BC" & subject_gender == "male")
+
+#seperate ab and bc in posttest
+posttest_ab <- posttest %>% 
+  filter(abbcac == "AB")
+
+posttest_bc <- posttest %>% 
+  filter(abbcac == "BC")
+
+#Condition
+correct_condition_by_abbcac_posttest <- posttest %>% 
+  group_by(abbcac, Condition, subject_number) %>% 
+  summarise(mean = mean(correct),
+            sd = sd(correct))
+
+#AB
+correct_condition_ab_posttest <- posttest %>% 
+  filter(abbcac == "AB") %>% 
+  group_by(Condition, subject_number) %>% 
+  summarise(mean = mean(correct),
+            sd = sd(correct))
+
+#Number of E>N, N>E, and E=N
+post_ab_emotion_means <- correct_condition_ab_posttest %>% 
+  filter(Condition == "emotion")
+
+post_ab_neutral_means <- correct_condition_ab_posttest %>% 
+  filter(Condition == "neutral") 
+
+post_ab_greater <- post_ab_emotion_means$mean > post_ab_neutral_means$mean
+post_ab_greater <- sum(post_ab_greater)
+
+post_ab_less <- post_ab_emotion_means$mean < post_ab_neutral_means$mean
+post_ab_less <- sum(post_ab_less)
+
+post_ab_equal <- post_ab_emotion_means$mean == post_ab_neutral_means$mean
+post_ab_equal <- sum(post_ab_equal)
+
+#BC
+correct_condition_bc_posttest <- posttest %>% 
+  filter(abbcac == "BC") %>% 
+  group_by(Condition, subject_number) %>% 
+  summarise(mean = mean(correct),
+            sd = sd(correct))
+
+#Number of E>N, N>E, and E=N
+post_bc_emotion_means <- correct_condition_bc_posttest %>% 
+  filter(Condition == "emotion")
+
+post_bc_neutral_means <- correct_condition_bc_posttest %>% 
+  filter(Condition == "neutral") 
+
+post_bc_greater <- post_bc_emotion_means$mean > post_bc_neutral_means$mean
+post_bc_greater <- sum(post_bc_greater)
+
+post_bc_less <- post_bc_emotion_means$mean < post_bc_neutral_means$mean
+post_bc_less <- sum(post_bc_less)
+
+post_bc_equal <- post_bc_emotion_means$mean == post_bc_neutral_means$mean
+post_bc_equal <- sum(post_bc_equal)
+
+#correct_condition_ab_posttest_females <-  posttest_ab_females %>% 
+#  group_by(Condition, subject_number) %>% 
+#  summarise(mean = mean(correct),
+#            sd = sd(correct))
+#
+#correct_condition_ab_posttest_males <-  posttest_ab_males %>% 
+#  group_by(Condition, subject_number) %>% 
+#  summarise(mean = mean(correct),
+#            sd = sd(correct))
+#
+#correct_condition_bc_posttest_females <-  posttest_bc_females %>% 
+#  group_by(Condition, subject_number) %>% 
+#  summarise(mean = mean(correct),
+#            sd = sd(correct))
+#
+#correct_condition_bc_posttest_males <-  posttest_bc_males %>% 
+#  group_by(Condition, subject_number) %>% 
+#  summarise(mean = mean(correct),
+#            sd = sd(correct))
+  
+temp_post_ab <- correct_condition_by_abbcac_posttest %>% 
+  select(-sd) %>% 
+  spread(Condition, mean) %>% 
+  select('neutral','emotion') %>% 
+  filter(abbcac == 'AB')
+
+t.test(temp_post_ab$neutral, temp_post_ab$emotion, paired = TRUE, conf.level = .95)
+
+temp_post_bc <- correct_condition_by_abbcac_posttest %>% 
+  select(-sd) %>% 
+  spread(Condition, mean) %>% 
+  select('neutral','emotion') %>% 
+  filter(abbcac == 'BC')
+
+t.test(temp_post_bc$neutral, temp_post_bc$emotion, paired = TRUE, conf.level = .95)
+
+correct_condition_posttest <- posttest %>% 
+  group_by(Condition, subject_number) %>% 
+  summarise(mean = mean(correct),
+            sd = sd(correct))
+
+correct_abbcac_posttest <- posttest %>% 
+  group_by(abbcac, subject_number) %>% 
+  summarise(mean = mean(correct),
+            sd = sd(correct))
+
+correct_gender_posttest <- posttest %>% 
+  group_by(Gender, subject_number) %>% 
+  summarise(mean = mean(correct),
+            sd = sd(correct))
+
+correct_congender_by_abbcac_posttest <- posttest %>% 
+  group_by(abbcac, C.Gender, subject_number) %>% 
+  summarise(mean = mean(correct),
+            sd = sd(correct))
+
+correct_congender_posttest <- posttest %>% 
+  group_by(C.Gender, subject_number) %>% 
+  summarise(mean = mean(correct),
+            sd = sd(correct))
+
+correct_congender_ab_posttest <- posttest %>% 
+  filter(abbcac == "AB") %>% 
+  group_by(C.Gender, subject_number) %>% 
+  summarise(mean = mean(correct),
+            sd = sd(correct))
+
+correct_congender_bc_posttest <- posttest %>% 
+  filter(abbcac == "BC") %>% 
+  group_by(C.Gender, subject_number) %>% 
+  summarise(mean = mean(correct),
+            sd = sd(correct))
+
+#correct_congender_ab_posttest_females <-  posttest_ab_females %>% 
+#  group_by(C.Gender, subject_number) %>% 
+#  summarise(mean = mean(correct),
+#            sd = sd(correct))
+#
+#correct_congender_ab_posttest_males <-  posttest_ab_males %>% 
+#  group_by(C.Gender, subject_number) %>% 
+#  summarise(mean = mean(correct),
+#            sd = sd(correct))
+#
+#correct_congender_bc_posttest_females <-  posttest_bc_females %>% 
+#  group_by(C.Gender, subject_number) %>% 
+#  summarise(mean = mean(correct),
+#            sd = sd(correct))
+#
+#correct_congender_bc_posttest_males <-  posttest_bc_males %>% 
+#  group_by(C.Gender, subject_number) %>% 
+#  summarise(mean = mean(correct),
+#            sd = sd(correct))
+
+Correct_item_posttest <- posttest %>% 
+  select("subject_number","correct", "a","b","c") %>% 
+  gather(abc, item_number, -1:-2) %>% 
+  filter(abc == "b") %>% 
+  group_by(item_number) %>% 
+  summarise(mean = mean(correct))
+
+#Overall Mean
+mean_condition_posttest <- posttest %>% 
+  group_by(Condition) %>% 
+  summarise(mean = mean(correct))
+
+mean_condition_by_abbcac_posttest <- posttest %>% 
+  group_by(abbcac, Condition) %>% 
+  summarise(mean = mean(correct))
+
+mean_condition_ab_posttest <- posttest %>% 
+  filter(abbcac == "AB") %>% 
+  group_by(Condition) %>% 
+  summarise(mean = mean(correct))
+
+mean_condition_bc_posttest <- posttest %>% 
+  filter(abbcac == "BC") %>% 
+  group_by(Condition) %>% 
+  summarise(mean = mean(correct))
+
+#mean_condition_ab_posttest_females <- posttest_ab_females %>% 
+#  group_by(Condition) %>% 
+#  summarise(mean = mean(correct))
+#
+#mean_condition_ab_posttest_males <- posttest_ab_males %>% 
+#  group_by(Condition) %>% 
+#  summarise(mean = mean(correct))
+#
+#mean_condition_bc_posttest_females <- posttest_bc_females %>% 
+#  group_by(Condition) %>% 
+#  summarise(mean = mean(correct))
+#
+#mean_condition_bc_posttest_males <- posttest_bc_males %>% 
+#  group_by(Condition) %>% 
+#  summarise(mean = mean(correct))
+
+mean_gender_posttest <- posttest %>% 
+  group_by(Gender) %>% 
+  summarise(mean = mean(correct))
+
+mean_congender_posttest <- posttest %>% 
+  group_by(C.Gender) %>% 
+  summarise(mean = mean(correct))
+
+mean_congender_by_abbcac_posttest <- posttest %>% 
+  group_by(abbcac, C.Gender) %>% 
+  summarise(mean = mean(correct))
+
+mean_congender_ab_posttest <- posttest %>% 
+  filter(abbcac == "AB") %>% 
+  group_by(C.Gender) %>% 
+  summarise(mean = mean(correct))
+
+mean_congender_bc_posttest <- posttest %>% 
+  filter(abbcac == "BC") %>% 
+  group_by(C.Gender) %>% 
+  summarise(mean = mean(correct))
+
+#mean_congender_ab_posttest_females <- posttest_ab_females %>% 
+#  group_by(C.Gender) %>% 
+#  summarise(mean = mean(correct))
+#
+#mean_congender_ab_posttest_males <- posttest_ab_males %>% 
+#  group_by(C.Gender) %>% 
+#  summarise(mean = mean(correct))
+#
+#mean_congender_bc_posttest_females <- posttest_bc_females %>% 
+#  group_by(C.Gender) %>% 
+#  summarise(mean = mean(correct))
+#
+#mean_congender_bc_posttest_males <- posttest_bc_males %>% 
+#  group_by(C.Gender) %>% 
+#  summarise(mean = mean(correct))
+
+
+#Reaction Times
+rt_condition_by_abbcac_posttest <- posttest %>% 
+  group_by(abbcac, Condition, subject_number) %>% 
+  summarise(median = median(rt,na.rm = TRUE),
+            sd = sd(rt,na.rm = TRUE))
+
+rt_condition_posttest <- posttest %>% 
+  group_by(Condition, subject_number) %>% 
+  summarise(median = median(rt,na.rm = TRUE),
+            sd = sd(rt,na.rm = TRUE))
+
+rt_condition_posttest_ab <- posttest_ab %>% 
+  group_by(Condition, subject_number) %>% 
+  summarise(median = median(rt,na.rm = TRUE),
+            sd = sd(rt,na.rm = TRUE))
+
+rt_condition_posttest_bc <- posttest_bc %>% 
+  group_by(Condition, subject_number) %>% 
+  summarise(median = median(rt,na.rm = TRUE),
+            sd = sd(rt,na.rm = TRUE))
+
+rt_abbcac_posttest <- posttest %>% 
+  group_by(abbcac, subject_number) %>% 
+  summarise(median = median(rt,na.rm = TRUE),
+            sd = sd(rt,na.rm = TRUE))
+
+rt_gender_by_abbcac_posttest <- posttest %>% 
+  group_by(abbcac, Gender, subject_number) %>% 
+  summarise(median = median(rt,na.rm = TRUE),
+            sd = sd(rt,na.rm = TRUE))
+
+rt_gender_posttest <- posttest %>% 
+  group_by(Gender, subject_number) %>% 
+  summarise(median = median(rt,na.rm = TRUE),
+            sd = sd(rt,na.rm = TRUE))
+
+rt_gender_posttest_ab <- posttest_ab %>% 
+  group_by(Gender, subject_number) %>% 
+  summarise(median = median(rt,na.rm = TRUE),
+            sd = sd(rt,na.rm = TRUE))
+
+temp_posttest_ab_rt <- rt_gender_posttest_ab %>% 
+  select(-sd) %>% 
+  spread(Gender, median) %>% 
+  select('female','male')
+
+posttest_ab_rt_ttest <- t.test(temp_posttest_ab_rt$female, temp_posttest_ab_rt$male, paired = TRUE, conf.level = .95)
+
+rt_gender_posttest_bc <- posttest_bc %>% 
+  group_by(Gender, subject_number) %>% 
+  summarise(median = median(rt,na.rm = TRUE),
+            sd = sd(rt,na.rm = TRUE))
+
+temp_posttest_bc_rt <- rt_gender_posttest_bc %>% 
+  select(-sd) %>% 
+  spread(Gender, median) %>% 
+  select('female','male')
+
+posttest_bc_rt_ttest <- t.test(temp_posttest_bc_rt$female, temp_posttest_bc_rt$male, paired = TRUE, conf.level = .95)
+
+
+rt_congender_by_abbcac_posttest <- posttest %>% 
+  group_by(abbcac, C.Gender, subject_number) %>% 
+  summarise(median = median(rt,na.rm = TRUE),
+            sd = sd(rt,na.rm = TRUE))
+
+rt_congender_posttest <- posttest %>% 
+  group_by(C.Gender, subject_number) %>% 
+  summarise(median = median(rt,na.rm = TRUE),
+            sd = sd(rt,na.rm = TRUE))
+
+rt_congender_posttest_ab <- posttest_ab %>% 
+  group_by(C.Gender, subject_number) %>% 
+  summarise(median = median(rt,na.rm = TRUE),
+            sd = sd(rt,na.rm = TRUE))
+
+rt_congender_posttest_bc <- posttest_bc %>% 
+  group_by(C.Gender, subject_number) %>% 
+  summarise(median = median(rt,na.rm = TRUE),
+            sd = sd(rt,na.rm = TRUE))
+
+#Mean of median reaction times
+rt_mean_condition_by_abbcac_posttest <-  rt_condition_by_abbcac_posttest %>% 
+  group_by(abbcac, Condition) %>% 
+  summarise(mean = mean(median))
+
+rt_mean_gender_by_abbcac_posttest <- rt_gender_by_abbcac_posttest %>% 
+  group_by(Gender) %>% 
+  summarise(mean = mean(median))
+
+rt_mean_congender_by_abbcac_posttest <- rt_congender_by_abbcac_posttest %>% 
+  group_by(C.Gender) %>% 
+  summarise(mean = mean(median))
+```
+There were `r post_ab_greater` E>N, `r post_ab_less` N>E and `r post_ab_equal` E=N in AB Posttest.
+
+There were `r post_bc_greater` E>N, `r post_bc_less` N>E and `r post_bc_equal` E=N in BC Posttest.
+
+
+#Posttest Plots
+##By Condition
+```{r, plotting_posttest_condition}
+posttest_condition_by_abbcac_line <- ggplot(correct_condition_by_abbcac_posttest,
+                               aes(subject_number, mean))+
+  geom_point(aes(color = Condition), size = 3, alpha = .6)+
+  geom_line(aes(group = subject_number))+
+  labs(title = "Posttest: Accuracy for Emotional and Neutral stimuli by subject", x = "Subject Number",
+       y = "Mean Accuracy")+
+  facet_wrap(~abbcac)
+(posttest_condition_by_abbcac_line <- posttest_condition_by_abbcac_line + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)))
+
+#AB and BC together 
+posttest_condition_by_abbcac_se <- Rmisc::summarySE(posttest, measurevar = "correct", 
+                            groupvars = c("Condition", "abbcac"))
+posttest_condition_by_abbcac_se$se[1] <- ab_post_e_se
+posttest_condition_by_abbcac_se$se[2] <- bc_post_e_se
+posttest_condition_by_abbcac_se$se[3] <- ab_post_n_se
+posttest_condition_by_abbcac_se$se[4] <- bc_post_n_se
+(posttest_condition_by_abbcac_bar <- ggplot(mean_condition_by_abbcac_posttest, aes(Condition, mean, fill = Condition))+
+  geom_bar(stat = "identity")+
+  geom_jitter(data = correct_condition_by_abbcac_posttest, aes(x = Condition, y = mean), width = .1)+
+  geom_errorbar(aes(ymin = mean - posttest_condition_by_abbcac_se$se, ymax = mean + 
+                      posttest_condition_by_abbcac_se$se),
+                width = 0.2,
+                position=position_dodge(.9))+
+      labs(title = "Posttest: Accuracy for Emotional and Neutral stimuli", x = "Condition",
+       y = "Mean Accuracy")+
+    facet_wrap(~abbcac))
+
+(posttest_condition_by_abbcac_bar_line <- ggplot(mean_condition_by_abbcac_posttest, aes(Condition, mean, fill = Condition))+
+  geom_bar(stat = "identity")+
+  geom_point(data = correct_condition_by_abbcac_posttest, aes(x = Condition, y = mean))+
+  geom_line(data = correct_condition_by_abbcac_posttest, aes(x = Condition, y = mean, group = subject_number))+
+  geom_errorbar(aes(ymin = mean - posttest_condition_by_abbcac_se$se, ymax = mean + 
+                      posttest_condition_by_abbcac_se$se),
+                width = 0.2,
+                position=position_dodge(.9))+
+      labs(title = "Posttest: Accuracy for Emotional and Neutral stimuli", x = "Condition",
+       y = "Mean Accuracy")+
+    facet_wrap(~abbcac))
+
+##Just AB
+#posttest_condition_ab_se <- Rmisc::summarySE(posttest_ab, measurevar = "correct", 
+#                            groupvars = c("Condition"))
+#posttest_condition_ab_se$se[1] <- ab_post_e_se
+#posttest_condition_ab_se$se[2] <- ab_post_n_se
+#(posttest_condition_ab_bar <- ggplot(mean_condition_ab_posttest, aes(Condition, mean, fill = Condition))+
+#  geom_bar(stat = "identity")+
+#  geom_jitter(data = correct_condition_ab_posttest, aes(x = Condition, y = mean), width = .1)+
+#  geom_errorbar(aes(ymin = mean - posttest_condition_ab_se$se, ymax = mean + posttest_condition_ab_se$se),
+#                width = 0.2,
+#                position=position_dodge(.9))+
+#      labs(title = "AB Posttest: Accuracy for Emotional and Neutral stimuli", x = "Condition",
+#       y = "Mean Accuracy"))
+#
+#(posttest_condition_ab_bar_line <- ggplot(mean_condition_ab_posttest, aes(Condition, mean, fill = Condition))+
+#  geom_bar(stat = "identity")+
+#  geom_point(data = correct_condition_ab_posttest, aes(x = Condition, y = mean))+
+#  geom_line(data = correct_condition_ab_posttest, aes(x = Condition, y = mean, group = subject_number))+
+#  geom_errorbar(aes(ymin = mean - posttest_condition_ab_se$se, ymax = mean + posttest_condition_ab_se$se),
+#                width = 0.2,
+#                position=position_dodge(.9))+
+#      labs(title = "AB Posttest: Accuracy for Emotional and Neutral stimuli", x = "Condition",
+#       y = "Mean Accuracy"))
+#
+##Just BC
+#posttest_condition_bc_se <- Rmisc::summarySE(posttest_bc, measurevar = "correct", 
+#                            groupvars = c("Condition"))
+#posttest_condition_bc_se$se[1] <- bc_post_e_se
+#posttest_condition_bc_se$se[2] <- bc_post_n_se
+#(posttest_condition_bc_bar <- ggplot(mean_condition_bc_posttest, aes(Condition, mean, fill = Condition))+
+#  geom_bar(stat = "identity")+
+#  geom_jitter(data = correct_condition_bc_posttest, aes(x = Condition, y = mean), width = .1)+
+#  geom_errorbar(aes(ymin = mean - posttest_condition_bc_se$se, ymax = mean + posttest_condition_bc_se$se),
+#                width = 0.2,
+#                position=position_dodge(.9))+
+#      labs(title = "BC Posttest: Accuracy for Emotional and Neutral stimuli", x = "Condition",
+#       y = "Mean Accuracy"))
+#
+#(posttest_condition_bc_bar_line <- ggplot(mean_condition_bc_posttest, aes(Condition, mean, fill = Condition))+
+#  geom_bar(stat = "identity")+
+#  geom_point(data = correct_condition_bc_posttest, aes(x = Condition, y = mean))+
+#  geom_line(data = correct_condition_bc_posttest, aes(x = Condition, y = mean, group = subject_number))+
+#  geom_errorbar(aes(ymin = mean - posttest_condition_bc_se$se, ymax = mean + posttest_condition_bc_se$se),
+#                width = 0.2,
+#                position=position_dodge(.9))+
+#      labs(title = "BC Posttest: Accuracy for Emotional and Neutral stimuli", x = "Condition",
+#       y = "Mean Accuracy"))
+
+#condition by subject gender AB
+#ab_posttest_females_condition_se <- Rmisc::summarySE(posttest_ab_females, measurevar = "correct", 
+#                            groupvars = c("Condition"))
+#ab_posttest_females_condition_se$se[1] <- f_ab_post_e_se
+#ab_posttest_females_condition_se$se[2] <- f_ab_post_n_se
+#(ab_posttest_females_condition_bar <- ggplot(mean_condition_ab_posttest_females, aes(Condition, mean, fill = Condition))+
+#  geom_bar(stat = "identity")+
+#  geom_jitter(data = correct_condition_ab_posttest_females, aes(x = Condition, y = mean), width = .1)+
+#  geom_errorbar(aes(ymin = mean - ab_posttest_females_condition_se$se, ymax = mean + ab_posttest_females_condition_se$se),
+#                width = 0.2,
+#                position=position_dodge(.9))+
+#      labs(title = "Accuracy for Emotional and Neutral stimuli AB Test 1", x = "Condition",
+#       y = "Mean Accuracy"))
+#
+#ab_posttest_males_condition_se <- Rmisc::summarySE(posttest_ab_males, measurevar = "correct", 
+#                            groupvars = c("Condition"))
+#ab_posttest_males_condition_se$se[1] <- m_ab_post_e_se
+#ab_posttest_males_condition_se$se[2] <- m_ab_post_n_se
+#(ab_posttest_males_condition_bar <- ggplot(mean_condition_ab_posttest_males, aes(Condition, mean, fill = Condition))+
+#  geom_bar(stat = "identity")+
+#  geom_jitter(data = correct_condition_ab_posttest_males, aes(x = Condition, y = mean), width = .1)+
+#  geom_errorbar(aes(ymin = mean - ab_posttest_males_condition_se$se, ymax = mean + ab_posttest_males_condition_se$se),
+#                width = 0.2,
+#                position=position_dodge(.9))+
+#      labs(title = "Accuracy for Emotional and Neutral stimuli AB Test 1", x = "Condition",
+#       y = "Mean Accuracy"))
+
+#condition by subject gender BC
+#bc_posttest_females_condition_se <- Rmisc::summarySE(posttest_bc_females, measurevar = "correct", 
+#                            groupvars = c("Condition"))
+#bc_posttest_females_condition_se$se[1] <- f_bc_post_e_se
+#bc_posttest_females_condition_se$se[2] <- f_bc_post_n_se
+#(bc_posttest_females_condition_bar <- ggplot(mean_condition_bc_posttest_females, aes(Condition, mean, fill = Condition))+
+#  geom_bar(stat = "identity")+
+#  geom_jitter(data = correct_condition_bc_posttest_females, aes(x = Condition, y = mean), width = .1)+
+#  geom_errorbar(aes(ymin = mean - bc_posttest_females_condition_se$se, ymax = mean + bc_posttest_females_condition_se$se),
+#                width = 0.2,
+#                position=position_dodge(.9))+
+#      labs(title = "Accuracy for Emotional and Neutral stimuli AB Test 1", x = "Condition",
+#       y = "Mean Accuracy"))
+#
+#bc_posttest_males_condition_se <- Rmisc::summarySE(posttest_bc_males, measurevar = "correct", 
+#                            groupvars = c("Condition"))
+#bc_posttest_males_condition_se$se[1] <- m_bc_post_e_se
+#bc_posttest_males_condition_se$se[2] <- m_bc_post_n_se
+#(ab_posttest_males_condition_bar <- ggplot(mean_condition_ab_posttest_males, aes(Condition, mean, fill = Condition))+
+#  geom_bar(stat = "identity")+
+#  geom_jitter(data = correct_condition_bc_posttest_males, aes(x = Condition, y = mean), width = .1)+
+#  geom_errorbar(aes(ymin = mean - bc_posttest_males_condition_se$se, ymax = mean + bc_posttest_males_condition_se$se),
+#                width = 0.2,
+#                position=position_dodge(.9))+
+#      labs(title = "Accuracy for Emotional and Neutral stimuli AB Test 1", x = "Condition",
+#       y = "Mean Accuracy"))
+
+#Condition
+#posttest_condition_line <- ggplot(correct_condition_posttest,
+#                               aes(subject_number, mean))+
+#  geom_point(aes(color = Condition), size = 3, alpha = .6)+
+#  geom_line(aes(group = subject_number))+
+#  labs(title = "Posttest: Accuracy for Emotional and Neutral stimuli by subject", x #= "Subject Number",
+#       y = "Mean Accuracy")
+#(posttest_condition_line <- posttest_condition_line + 
+#  theme(axis.text.x = element_text(angle = 90, hjust = 1)))
+#
+#(posttest_condition_violin <- ggplot(correct_condition_posttest, aes(Condition, #mean))+
+#  geom_violin(alpha = 0.8, aes(fill = Condition))+
+#  geom_jitter(width = .1)+
+#  labs(title = "Posttest: Accuracy for Emotional and Neutral stimuli", x = #"Condition",
+#       y = "Mean Accuracy"))
+#  
+#
+#posttest_condition_se <- Rmisc::summarySE(posttest, measurevar = "correct", 
+#                            groupvars = c("Condition"))
+#(posttest_condition_bar <- ggplot(mean_condition_posttest, aes(Condition, mean, fill #= Condition))+
+#  geom_bar(stat = "identity")+
+#  geom_jitter(data = correct_condition_posttest, aes(x = Condition, y = mean), width #= .1)+
+#  geom_errorbar(aes(ymin = mean - posttest_condition_se$se, ymax = mean + #posttest_condition_se$se),
+#                width = 0.2,
+#                position=position_dodge(.9))+
+#      labs(title = "Posttest: Accuracy for Emotional and Neutral stimuli", x = #"Condition",
+#       y = "Mean Accuracy"))
+#
+####(posttest_condition_point <- ggplot(correct_condition_posttest)+
+####  geom_jitter(width = .2, alpha = .8, aes(Condition, mean, color = Condition))+
+####  geom_pointrange(data = posttest_condition_se, aes(x = Condition, y = correct, 
+####                  ymin = (correct - ci),
+####                  ymax = (correct + ci)))+
+####  labs(title = "Accuracy for Emotional and Neutral stimuli by subject", x = "Condition",
+####       y = "Mean Accuracy"))
+####
+####(posttest_condition_boxplot <- ggplot(correct_condition_posttest, aes(Condition, mean))+
+####  geom_boxplot(aes(fill = Condition))+
+####  labs(title = "Accuracy for Emotional and Neutral stimuli by subject", x = "Condition",
+####       y = "Mean Accuracy"))
+```
+
+
+
+By Gender
+```{r, plotting_posttest_gender}
+#Gender
+#posttest_gender_line <- ggplot(correct_gender_posttest,
+#                               aes(subject_number, mean))+
+#  geom_point(aes(color = Gender), size = 3, alpha = .6)+
+#  geom_line(aes(group = subject_number))+
+#  labs(title = "Posttest: Accuracy for Male and Female stimuli by subject", x = #"Subject Number",
+#       y = "Mean Accuracy")
+#(posttest_gender_line <- posttest_gender_line + 
+#  theme(axis.text.x = element_text(angle = 90, hjust = 1)))
+
+#(posttest_gender_violin <- ggplot(correct_gender_posttest, aes(Gender, mean))+
+#  geom_violin(alpha = 0.8, aes(fill = Gender))+
+#  geom_jitter(width = .1)+
+#  labs(title = "Posttest: Accuracy for Male and Female stimuli", x = "Gender",
+#       y = "Mean Accuracy"))
+#  
+#
+#posttest_gender_se <- Rmisc::summarySE(posttest, measurevar = "correct", 
+#                            groupvars = c("Gender"))
+#(posttest_gender_bar <- ggplot(mean_gender_posttest, aes(Gender, mean, fill = Gender))+
+#  geom_bar(stat = "identity")+
+#  geom_jitter(data = correct_gender_posttest, aes(x = Gender, y = mean), width = .1)+
+#  geom_errorbar(aes(ymin = mean - posttest_gender_se$se, ymax = mean + posttest_gender_se$se),
+#                width = 0.2,
+#                position=position_dodge(.9))+
+#      labs(title = "Posttest: Accuracy for Male and Female stimuli", x = "Gender",
+#       y = "Mean Accuracy"))
+
+####(posttest_gender_point <- ggplot(correct_gender_posttest)+
+####  geom_jitter(width = .2, alpha = .8, aes(Gender, mean, color = Gender))+
+####  geom_pointrange(data = posttest_gender_se, aes(x = Gender, y = correct, 
+####                  ymin = (correct - ci),
+####                  ymax = (correct + ci)))+
+####  labs(title = "Accuracy for Male and Female stimuli by subject", x = "Gender",
+####       y = "Mean Accuracy"))
+####
+####(posttest_gender_boxplot <- ggplot(correct_gender_posttest, aes(Gender, mean))+
+####  geom_boxplot(aes(fill = Gender))+
+####  labs(title = "Accuracy for Male and Female stimuli by subject", x = "Gender",
+####       y = "Mean Accuracy"))
+```
+
+
+
+##By Condition and Gender
+```{r, plotting_posttest_congender}
+#Conditional Gender
+#posttest_congender_line <- ggplot(correct_congender_posttest,
+#                               aes(subject_number, mean))+
+#  geom_point(aes(color = C.Gender), size = 3, alpha = .6)+
+#  geom_line(aes(group = subject_number))+
+#  labs(title = "Posttest: Accuracy for Conditional Male and Female stimuli by #subject", x = "Subject Number",
+#       y = "Mean Accuracy")
+#(posttest_congender_line <- posttest_congender_line + 
+#  theme(axis.text.x = element_text(angle = 90, hjust = 1)))
+#
+#(posttest_congender_violin <- ggplot(correct_congender_posttest, aes(C.Gender, mean))+
+#  geom_violin(alpha = 0.8, aes(fill = C.Gender))+
+#  geom_jitter(width = .1)+
+#  labs(title = "Posttest: Accuracy for Male and Female stimuli by condition", x = "Gender",
+#       y = "Mean Accuracy"))
+  
+#
+#posttest_congender_se <- Rmisc::summarySE(posttest, measurevar = "correct", 
+#                            groupvars = c("C.Gender"))
+#(posttest_congender_bar <- ggplot(mean_congender_posttest, aes(C.Gender, mean, fill = C.Gender))+
+#  geom_bar(stat = "identity")+
+#  geom_jitter(data = correct_congender_posttest, aes(x = C.Gender, y = mean), width = .1)+
+#  geom_errorbar(aes(ymin = mean - posttest_congender_se$se, ymax = mean + posttest_congender_se$se),
+#                width = 0.2,
+#                position=position_dodge(.9))+
+#      labs(title = "Posttest: Accuracy for Male and Female stimuli by condition", x = "Gender",
+#       y = "Mean Accuracy"))
+
+posttest_congender_by_abbcac_se <- Rmisc::summarySE(posttest, measurevar = "correct", 
+                            groupvars = c("C.Gender", "abbcac"))
+posttest_congender_by_abbcac_se$se[1] <- ab_post_ef_se
+posttest_congender_by_abbcac_se$se[2] <- bc_post_ef_se
+posttest_congender_by_abbcac_se$se[3] <- ab_post_em_se
+posttest_congender_by_abbcac_se$se[4] <- bc_post_em_se
+posttest_congender_by_abbcac_se$se[1] <- ab_post_nf_se
+posttest_congender_by_abbcac_se$se[2] <- bc_post_nf_se
+posttest_congender_by_abbcac_se$se[3] <- ab_post_nm_se
+posttest_congender_by_abbcac_se$se[4] <- bc_post_nm_se
+(posttest_condition_by_abbcac_bar <- ggplot(mean_congender_by_abbcac_posttest, aes(C.Gender, mean, fill = C.Gender))+
+  geom_bar(stat = "identity")+
+  geom_jitter(data = correct_congender_by_abbcac_posttest, aes(x = C.Gender, y = mean), width = .1)+
+  geom_errorbar(aes(ymin = mean - posttest_congender_by_abbcac_se$se, ymax = mean + 
+                      posttest_congender_by_abbcac_se$se), width = 0.2, position=position_dodge(.9))+
+      labs(title = "Posttest: Accuracy for Male and Female stimuli by condition", x = "Gender",
+       y = "Mean Accuracy")+
+    facet_wrap(~abbcac))
+
+#Just AB
+#posttest_congender_ab_se <- Rmisc::summarySE(posttest_ab, measurevar = "correct", 
+#                            groupvars = c("C.Gender"))
+#posttest_congender_ab_se$se[1] <- ab_post_ef_se
+#posttest_congender_ab_se$se[2] <- ab_post_em_se
+#posttest_congender_ab_se$se[3] <- ab_post_nf_se
+#posttest_congender_ab_se$se[4] <- ab_post_nm_se
+#(posttest_congender_ab_bar <- ggplot(mean_congender_ab_posttest, aes(C.Gender, mean, fill = C.Gender))+
+#  geom_bar(stat = "identity")+
+#  geom_jitter(data = correct_congender_ab_posttest, aes(x = C.Gender, y = mean), width = .1)+
+#  geom_errorbar(aes(ymin = mean - posttest_congender_ab_se$se, ymax = mean + posttest_congender_ab_se$se),
+#                width = 0.2,
+#                position=position_dodge(.9))+
+#      labs(title = "AB Posttest: Accuracy for Male and Female stimuli by condition", x = "Gender",
+#       y = "Mean Accuracy"))
+#
+##Just BC
+#posttest_congender_bc_se <- Rmisc::summarySE(posttest_bc, measurevar = "correct", 
+#                            groupvars = c("C.Gender"))
+#posttest_congender_bc_se$se[1] <- bc_post_ef_se
+#posttest_congender_bc_se$se[2] <- bc_post_em_se
+#posttest_congender_bc_se$se[3] <- bc_post_nf_se
+#posttest_congender_bc_se$se[4] <- bc_post_nm_se
+#(posttest_congender_bc_bar <- ggplot(mean_congender_bc_posttest, aes(C.Gender, mean, fill = C.Gender))+
+#  geom_bar(stat = "identity")+
+#  geom_jitter(data = correct_congender_bc_posttest, aes(x = C.Gender, y = mean), width = .1)+
+#  geom_errorbar(aes(ymin = mean - posttest_congender_bc_se$se, ymax = mean + posttest_congender_bc_se$se),
+#                width = 0.2,
+#                position=position_dodge(.9))+
+#      labs(title = "BC Posttest: Accuracy for Male and Female stimuli", x = "Gender",
+#       y = "Mean Accuracy"))
+
+####(posttest_congender_point <- ggplot(correct_congender_posttest)+
+####  geom_jitter(width = .2, alpha = .8, aes(C.Gender, mean, color = C.Gender))+
+####  geom_pointrange(data = posttest_congender_se, aes(x = C.Gender, y = correct, 
+####                  ymin = (correct - ci),
+####                  ymax = (correct + ci)))+
+####  labs(title = "Accuracy for Male and Female stimuli by subject", x = "Gender",
+####       y = "Mean Accuracy"))
+####
+####(posttest_congender_boxplot <- ggplot(correct_congender_posttest, aes(C.Gender, mean))+
+####  geom_boxplot(aes(fill = C.Gender))+
+####  labs(title = "Accuracy for Male and Female stimuli by subject", x = "Gender",
+####       y = "Mean Accuracy"))
+
+#Congender by subject gender AB
+#ab_posttest_females_congender_se <- Rmisc::summarySE(posttest_ab_females, measurevar = "correct", 
+#                            groupvars = c("C.Gender"))
+#ab_posttest_females_congender_se$se[1] <- f_ab_post_ef_se
+#ab_posttest_females_congender_se$se[2] <- f_ab_post_em_se
+#ab_posttest_females_congender_se$se[3] <- f_ab_post_nf_se
+#ab_posttest_females_congender_se$se[4] <- f_ab_post_nm_se
+#(ab_posttest_females_congender_bar <- ggplot(mean_congender_ab_posttest_females, aes(C.Gender, mean, fill = C.Gender))+
+#  geom_bar(stat = "identity")+
+#  geom_jitter(data = correct_congender_ab_posttest_females, aes(x = C.Gender, y = mean), width = .1)+
+#  geom_errorbar(aes(ymin = mean - ab_posttest_females_congender_se$se, ymax = mean + ab_posttest_females_congender_se$se),
+#                width = 0.2,
+#                position=position_dodge(.9))+
+#      labs(title = "Accuracy for Emotional or Neutral Male and Female stimuli Ab Test 1 ", x = "Gender",
+#       y = "Mean Accuracy"))
+#
+#ab_posttest_males_congender_se <- Rmisc::summarySE(posttest_ab_males, measurevar = "correct", 
+#                            groupvars = c("C.Gender"))
+#ab_posttest_males_congender_se$se[1] <- m_ab_post_ef_se
+#ab_posttest_males_congender_se$se[2] <- m_ab_post_em_se
+#ab_posttest_males_congender_se$se[3] <- m_ab_post_nf_se
+#ab_posttest_males_congender_se$se[4] <- m_ab_post_nm_se
+#(ab_posttest_males_congender_bar <- ggplot(mean_congender_ab_posttest_males, aes(C.Gender, mean, fill = C.Gender))+
+#  geom_bar(stat = "identity")+
+#  geom_jitter(data = correct_congender_ab_posttest_males, aes(x = C.Gender, y = mean), width = .1)+
+#  geom_errorbar(aes(ymin = mean - ab_posttest_males_congender_se$se, ymax = mean + ab_posttest_males_congender_se$se),
+#                width = 0.2,
+#                position=position_dodge(.9))+
+#      labs(title = "Accuracy for Emotional or Neutral Male and Female stimuli Ab Test 1 ", x = "Gender",
+#       y = "Mean Accuracy"))
+
+#Congender by subject gender BC
+#bc_posttest_females_congender_se <- Rmisc::summarySE(posttest_bc_females, measurevar = "correct", 
+#                            groupvars = c("C.Gender"))
+#bc_posttest_females_congender_se$se[1] <- f_bc_post_ef_se
+#bc_posttest_females_congender_se$se[2] <- f_bc_post_em_se
+#bc_posttest_females_congender_se$se[3] <- f_bc_post_nf_se
+#bc_posttest_females_congender_se$se[4] <- f_bc_post_nm_se
+#(bc_posttest_females_congender_bar <- ggplot(mean_congender_bc_posttest_females, aes(C.Gender, mean, fill = C.Gender))+
+#  geom_bar(stat = "identity")+
+#  geom_jitter(data = correct_congender_bc_posttest_females, aes(x = C.Gender, y = mean), width = .1)+
+#  geom_errorbar(aes(ymin = mean - bc_posttest_females_congender_se$se, ymax = mean + bc_posttest_females_congender_se$se),
+#                width = 0.2,
+#                position=position_dodge(.9))+
+#      labs(title = "Accuracy for Emotional or Neutral Male and Female stimuli Ab Test 1 ", x = "Gender",
+#       y = "Mean Accuracy"))
+#
+#bc_posttest_males_congender_se <- Rmisc::summarySE(posttest_bc_males, measurevar = "correct", 
+#                            groupvars = c("C.Gender"))
+#bc_posttest_males_congender_se$se[1] <- m_bc_post_ef_se
+#bc_posttest_males_congender_se$se[2] <- m_bc_post_em_se
+#bc_posttest_males_congender_se$se[3] <- m_bc_post_nf_se
+#ab_posttest_males_congender_se$se[4] <- m_bc_post_nm_se
+#(bc_posttest_males_congender_bar <- ggplot(mean_congender_bc_posttest_males, aes(C.Gender, mean, fill = C.Gender))+
+#  geom_bar(stat = "identity")+
+#  geom_jitter(data = correct_congender_bc_posttest_males, aes(x = C.Gender, y = mean), width = .1)+
+#  geom_errorbar(aes(ymin = mean - bc_posttest_males_congender_se$se, ymax = mean + bc_posttest_males_congender_se$se),
+#                width = 0.2,
+#                position=position_dodge(.9))+
+#      labs(title = "Accuracy for Emotional or Neutral Male and Female stimuli Ab Test 1 ", x = "Gender",
+#       y = "Mean Accuracy"))
+```
+
+
+
+```{r, ab1_metamemory}
+tmp <- ab_study1 %>% 
+  select(subject_number, id, response)
+tmp2 <- ab_test1 %>%
+  select(subject_number, id, correct)
+  
+meta_ab1 <- left_join(tmp, tmp2, by = c("subject_number", "id"))
+
+predict_remember_correct_ab1 <- meta_ab1 %>% 
+  group_by(subject_number) %>% 
+  filter(response == 3 | response == 4) %>% 
+  summarise(mean = mean(correct))%>% 
+  select(-contains("sub"))
+
+predict_remember_incorrect_ab1 <- meta_ab1 %>% 
+  group_by(subject_number) %>% 
+  filter(response == 3 | response == 4) %>% 
+  summarise(mean = 1 - mean(correct)) %>% 
+  select(-contains("sub"))
+
+metamemory_chr_ab1 <- predict_remember_correct_ab1 - predict_remember_incorrect_ab1
+
+meta_ab1$predict_yes <-  ifelse(meta_ab1$response == 1 | meta_ab1$response == 2, 1, 0)#NANs treated as incorrect  
+
+meta_ab1$predict_acc <- as.numeric(meta_ab1$predict_yes == meta_ab1$correct)
+  
+predict_accuracy_ab1 <- meta_ab1 %>% 
+  group_by(subject_number) %>% 
+  summarise(mean = mean(predict_acc, na.rm = TRUE))
+```
+
+
+
+```{r, ab2_metamemory}
+tmp <- ab_study2 %>% 
+  select(subject_number, id, response)
+tmp2 <- ab_test2 %>%
+  select(subject_number, id, correct)
+  
+meta_ab2 <- left_join(tmp, tmp2, by = c("subject_number", "id"))
+
+predict_remember_correct_ab2 <- meta_ab2 %>% 
+  group_by(subject_number) %>% 
+  filter(response == 3 | response == 4) %>% 
+  summarise(mean = mean(correct))%>% 
+  select(-contains("sub"))
+
+predict_remember_incorrect_ab2 <- meta_ab2 %>% 
+  group_by(subject_number) %>% 
+  filter(response == 3 | response == 4) %>% 
+  summarise(mean = 1 - mean(correct)) %>% 
+  select(-contains("sub"))
+
+metamemory_chr_ab2 <- predict_remember_correct_ab2 - predict_remember_incorrect_ab2
+
+meta_ab2$predict_yes <-  ifelse(meta_ab2$response == 1 | meta_ab2$response == 2, 1, 0)#NANs treated as incorrect  
+
+meta_ab2$predict_acc <- as.numeric(meta_ab2$predict_yes == meta_ab2$correct)
+  
+predict_accuracy_ab2 <- meta_ab2 %>% 
+  group_by(subject_number) %>% 
+  summarise(mean = mean(predict_acc, na.rm = TRUE))
+```
+
+
+
+```{r, ab3_metamemory}
+tmp <- ab_study3 %>% 
+  select(subject_number, id, response)
+tmp2 <- ab_test3 %>%
+  select(subject_number, id, correct)
+  
+meta_ab3 <- left_join(tmp, tmp2, by = c("subject_number", "id"))
+
+predict_remember_correct_ab3 <- meta_ab3 %>% 
+  group_by(subject_number) %>% 
+  filter(response == 1 | response == 2) %>% 
+  summarise(mean = mean(correct))%>% 
+  select(-contains("sub"))
+
+predict_remember_incorrect_ab3 <- meta_ab3 %>% 
+  group_by(subject_number) %>% 
+  filter(response == 1 | response == 2) %>% 
+  summarise(mean = 1 - mean(correct)) %>% 
+  select(-contains("sub"))
+
+metamemory_chr_ab3 <- predict_remember_correct_ab3 - predict_remember_incorrect_ab3
+
+meta_ab3$predict_yes <-  ifelse(meta_ab3$response == 1 | meta_ab3$response == 2, 1, 0)#NANs treated as incorrect  
+
+meta_ab3$predict_acc <- as.numeric(meta_ab3$predict_yes == meta_ab3$correct)
+  
+predict_accuracy_ab3 <- meta_ab3 %>% 
+  group_by(subject_number) %>% 
+  summarise(mean = mean(predict_acc, na.rm = TRUE))
+```
+
+
+
+```{r, bc_metamemory}
+tmp <- bc_study %>% 
+  select(subject_number, id, response)
+tmp2 <- posttest %>%
+  select(subject_number, id, correct, abbcac)
+  
+meta_bc <- left_join(tmp, tmp2, by = c("subject_number", "id"))
+
+predict_remember_correct_bc <- meta_bc %>% 
+  group_by(subject_number) %>% 
+  filter(response == 1 | response == 2) %>% 
+  filter(abbcac == 2) %>% 
+  summarise(mean = mean(correct))%>% 
+  select(-contains("sub"))
+
+predict_remember_incorrect_bc <- meta_bc %>% 
+  group_by(subject_number) %>% 
+  filter(response == 1 | response == 2) %>%
+  filter(abbcac == 2) %>% 
+  summarise(mean = 1 - mean(correct)) %>% 
+  select(-contains("sub"))
+
+metamemory_chr_bc <- predict_remember_correct_bc - predict_remember_incorrect_bc
+
+meta_bc$predict_yes <-  ifelse(meta_bc$response == 1 | meta_bc$response == 2, 1, 0)#NANs treated as incorrect  
+
+meta_bc$predict_acc <- as.numeric(meta_bc$predict_yes == meta_bc$correct)
+  
+predict_accuracy_bc <- meta_bc %>% 
+  group_by(subject_number) %>% 
+  summarise(mean = mean(predict_acc, na.rm = TRUE))
+```
+
+
+#Combined Graphs for all Tests
+```{r, combined_plots}
+ab_test1 <- ab_test1 %>% 
+  mutate(test = "AB1")
+
+ab_test2 <- ab_test2 %>% 
+  mutate(test = "AB2")
+
+ab_test3 <- ab_test3 %>% 
+  mutate(test = "AB3")
+
+comb_ab1 <- ab_test1 %>% 
+  select("subject_number", "Condition", "C.Gender", "correct", "rt", "test")
+
+comb_ab2 <- ab_test2 %>% 
+  select("subject_number", "Condition", "C.Gender", "correct", "rt", "test")
+
+comb_ab3 <- ab_test3 %>% 
+  select("subject_number", "Condition", "C.Gender", "correct", "rt", "test")
+
+ab_tests <- rbind(comb_ab1, comb_ab2, comb_ab3)
+
+correct_condition_ab_tests <-  ab_tests %>% 
+  group_by(test, Condition, subject_number) %>% 
+  summarise(mean = mean(correct))
+
+mean_condition_abtests <- ab_tests %>% 
+  group_by(test, Condition) %>% 
+  summarise(mean = mean(correct))
+
+abtests_condition_se <- Rmisc::summarySE(ab_tests, measurevar = "correct", 
+                            groupvars = c("test", "Condition"))
+abtests_condition_se$se[1] <- ab1_e_se
+abtests_condition_se$se[2] <- ab1_n_se
+abtests_condition_se$se[3] <- ab2_e_se
+abtests_condition_se$se[4] <- ab2_n_se
+abtests_condition_se$se[5] <- ab3_e_se
+abtests_condition_se$se[6] <- ab3_n_se
+(abtests_condition_bar <- ggplot(mean_condition_abtests, aes(test, mean, fill = Condition))+
+  geom_bar(stat = "identity", position = "dodge")+
+  geom_errorbar(aes(ymin = mean - abtests_condition_se$se, ymax = mean + abtests_condition_se$se),
+                width = 0.2,
+                position=position_dodge(.9))+
+      labs(title = "Accuracy for Emotional and Neutral stimuli AB Tests", x = "Condition",
+       y = "Mean Accuracy"))
+
+ac <- ac %>% 
+  mutate(test = "AC")
+
+posttest <- posttest %>% 
+  mutate(test = ifelse(abbcac == "AB", "AB", "BC"))
+
+comb_ac <- ac %>% 
+  select("subject_number", "Condition", "C.Gender", "correct", "rt", "test")
+
+comb_post <- posttest %>% 
+  select("subject_number", "Condition", "C.Gender", "correct", "rt", "test")
+
+posttests <- rbind(comb_ac, comb_post)
+
+test_levels <- c("AB", "BC", "AC")
+posttests$test <- factor(posttests$test, levels = test_levels)
+
+correct_condition_posttests <-  posttests %>% 
+  group_by(test, Condition, subject_number) %>% 
+  summarise(mean = mean(correct))
+
+mean_condition_posttests <- posttests %>% 
+  group_by(test, Condition) %>% 
+  summarise(mean = mean(correct))
+
+posttests_condition_se <- Rmisc::summarySE(posttests, measurevar = "correct", 
+                            groupvars = c("test", "Condition"))
+posttests_condition_se$se[1] <- ab_post_e_se
+posttests_condition_se$se[2] <- ab_post_n_se
+posttests_condition_se$se[3] <- ac_e_se
+posttests_condition_se$se[4] <- ac_n_se
+posttests_condition_se$se[5] <- bc_post_e_se
+posttests_condition_se$se[6] <- bc_post_n_se
+(posttests_condition_bar <- ggplot(mean_condition_posttests, aes(test, mean, fill = Condition))+
+  geom_bar(stat = "identity", position = "dodge")+
+  geom_errorbar(aes(ymin = mean - posttests_condition_se$se, ymax = mean + posttests_condition_se$se),
+                width = 0.2,
+                position=position_dodge(.9))+
+  labs(title = "Accuracy for Emotional and Neutral stimuli Final Tests", x = "Condition",
+  y = "Mean Accuracy"))
+
+
+#Congender
+correct_congender_ab_tests <-  ab_tests %>% 
+  group_by(test, C.Gender, subject_number) %>% 
+  summarise(mean = mean(correct))
+
+mean_congender_abtests <- ab_tests %>% 
+  group_by(test, C.Gender) %>% 
+  summarise(mean = mean(correct))
+
+abtests_congender_se <- Rmisc::summarySE(ab_tests, measurevar = "correct", 
+                            groupvars = c("test", "C.Gender"))
+abtests_congender_se$se[1] <- ab1_ef_se
+abtests_congender_se$se[2] <- ab1_em_se
+abtests_congender_se$se[3] <- ab1_nf_se
+abtests_congender_se$se[4] <- ab1_nm_se
+abtests_congender_se$se[5] <- ab2_ef_se
+abtests_congender_se$se[6] <- ab2_em_se
+abtests_congender_se$se[7] <- ab2_nf_se
+abtests_congender_se$se[8] <- ab2_nm_se
+abtests_congender_se$se[9] <- ab3_ef_se
+abtests_congender_se$se[10] <- ab3_em_se
+abtests_congender_se$se[11] <- ab3_nf_se
+abtests_congender_se$se[12] <- ab3_nm_se
+(abtests_congender_bar <- ggplot(mean_congender_abtests, aes(test, mean, fill = C.Gender))+
+  geom_bar(stat = "identity", position = "dodge")+
+  geom_errorbar(aes(ymin = mean - abtests_congender_se$se, ymax = mean + abtests_congender_se$se),
+                width = 0.2,
+                position=position_dodge(.9))+
+      labs(title = "Accuracy for Emotional or Neutral Male and Female stimuli Ab Test 1 ", x = "Gender",
+       y = "Mean Accuracy"))
+
+correct_congender_posttests <- posttests %>% 
+  group_by(test, C.Gender, subject_number) %>% 
+  summarise(mean = mean(correct),
+            sd = sd(correct))
+
+mean_congender_posttests <- posttests %>% 
+  group_by(test, C.Gender) %>% 
+  summarise(mean = mean(correct))
+
+posttests_congender_se <- Rmisc::summarySE(posttests, measurevar = "correct", 
+                            groupvars = c("test", "C.Gender"))
+posttests_congender_se$se[1] <- ab_post_ef_se
+posttests_congender_se$se[2] <- ab_post_em_se
+posttests_congender_se$se[3] <- ab_post_nf_se
+posttests_congender_se$se[4] <- ab_post_nm_se
+posttests_congender_se$se[5] <- ac_ef_se
+posttests_congender_se$se[6] <- ac_em_se
+posttests_congender_se$se[7] <- ac_nf_se
+posttests_congender_se$se[8] <- ac_nm_se
+posttests_congender_se$se[9] <- bc_post_ef_se 
+posttests_congender_se$se[10] <- bc_post_em_se 
+posttests_congender_se$se[11] <- bc_post_nf_se 
+posttests_congender_se$se[12] <- bc_post_nm_se 
+(posttests_congender_by_subgender_bar <- ggplot(mean_congender_posttests, aes(test, mean, fill = C.Gender))+
+  geom_bar(stat = "identity", position = "dodge")+
+  geom_errorbar(aes(ymin = mean - posttests_congender_se$se, ymax = mean + posttests_congender_se$se),
+                width = 0.2,
+                position=position_dodge(.9))+
+      labs(title = "Accuracy for Neutral or Emotional Male and Female stimuli Final Tests", x = "Gender",
+       y = "Mean Accuracy"))
+```
+
+
+```{r,se_rt}
+summary_rt <- import("EFOPA Summary Analysis RT.xlsx") 
+
+ab1_e_se_rt <- (sd(summary_rt$`AB1 E`))/sqrt(nrow(summary_rt))
+ab1_n_se_rt <- (sd(summary_rt$`AB1 N`))/sqrt(nrow(summary_rt))
+ab2_e_se_rt <- (sd(summary_rt$`AB2 E`))/sqrt(nrow(summary_rt))
+ab2_n_se_rt <- (sd(summary_rt$`AB2 N`))/sqrt(nrow(summary_rt))
+ab3_e_se_rt <- (sd(summary_rt$`AB3 E`))/sqrt(nrow(summary_rt))
+ab3_n_se_rt <- (sd(summary_rt$`AB3 N`))/sqrt(nrow(summary_rt))
+ab_post_e_se_rt <- (sd(summary_rt$`AB Post E`))/sqrt(nrow(summary_rt))
+ab_post_n_se_rt <- (sd(summary_rt$`AB Post N`))/sqrt(nrow(summary_rt))
+bc_post_e_se_rt <- (sd(summary_rt$`BC Post E`))/sqrt(nrow(summary_rt))
+bc_post_n_se_rt <- (sd(summary_rt$`BC Post N`))/sqrt(nrow(summary_rt))
+ac_e_se_rt <- (sd(summary_rt$`AC E`))/sqrt(nrow(summary_rt))
+ac_n_se_rt <- (sd(summary_rt$`AC N`))/sqrt(nrow(summary_rt))
+
+ab1_ef_se_rt <- (sd(summary_rt$`AB1 EF`))/sqrt(nrow(summary_rt))
+ab1_em_se_rt <- (sd(summary_rt$`AB1 EM`))/sqrt(nrow(summary_rt))
+ab1_nf_se_rt <- (sd(summary_rt$`AB1 NF`))/sqrt(nrow(summary_rt))
+ab1_nm_se_rt <- (sd(summary_rt$`AB1 NM`))/sqrt(nrow(summary_rt))
+ab2_ef_se_rt <- (sd(summary_rt$`AB2 EF`))/sqrt(nrow(summary_rt))
+ab2_em_se_rt <- (sd(summary_rt$`AB2 EM`))/sqrt(nrow(summary_rt))
+ab2_nf_se_rt <- (sd(summary_rt$`AB2 NF`))/sqrt(nrow(summary_rt))
+ab2_nm_se_rt <- (sd(summary_rt$`AB2 NM`))/sqrt(nrow(summary_rt))
+ab3_ef_se_rt <- (sd(summary_rt$`AB3 EF`))/sqrt(nrow(summary_rt))
+ab3_em_se_rt <- (sd(summary_rt$`AB3 EM`))/sqrt(nrow(summary_rt))
+ab3_nf_se_rt <- (sd(summary_rt$`AB3 NF`))/sqrt(nrow(summary_rt))
+ab3_nm_se_rt <- (sd(summary_rt$`AB3 NM`))/sqrt(nrow(summary_rt))
+ab_post_ef_se_rt <- (sd(summary_rt$`AB Post EF`))/sqrt(nrow(summary_rt))
+ab_post_em_se_rt <- (sd(summary_rt$`AB Post EM`))/sqrt(nrow(summary_rt))
+ab_post_nf_se_rt <- (sd(summary_rt$`AB Post NF`))/sqrt(nrow(summary_rt))
+ab_post_nm_se_rt <- (sd(summary_rt$`AB Post NM`))/sqrt(nrow(summary_rt))
+bc_post_ef_se_rt <- (sd(summary_rt$`BC Post EF`))/sqrt(nrow(summary_rt))
+bc_post_em_se_rt <- (sd(summary_rt$`BC Post EM`))/sqrt(nrow(summary_rt))
+bc_post_nf_se_rt <- (sd(summary_rt$`BC Post NF`))/sqrt(nrow(summary_rt))
+bc_post_nm_se_rt <- (sd(summary_rt$`BC Post NM`))/sqrt(nrow(summary_rt))
+ac_ef_se_rt <- (sd(summary_rt$`AC EF`))/sqrt(nrow(summary_rt))
+ac_em_se_rt <- (sd(summary_rt$`AC EM`))/sqrt(nrow(summary_rt))
+ac_nf_se_rt <- (sd(summary_rt$`AC NF`))/sqrt(nrow(summary_rt))
+ac_nm_se_rt <- (sd(summary_rt$`AC NM`))/sqrt(nrow(summary_rt))
+```
+
+
+
+```{r, spread for anova spss}
+ab_tests_s <- ab_tests %>% 
+  select(-rt, -C.Gender) %>%
+  unite(test_condition, test, Condition) %>% 
+  reshape2::dcast(subject_number ~ test_condition, fun=mean)
+
+export(ab_tests_s, "ab_tests_s.sav")
+
+posttests_s <- posttests %>% 
+  select(-rt, -C.Gender) %>%
+  unite(test_condition, test, Condition) %>% 
+  reshape2::dcast(subject_number ~ test_condition, fun=mean)
+
+export(posttests_s, "posttests_s.sav")
+```
+
+
+
+#Reaction Time 
+
+##AB Test 1 Analysis
+```{r}
+temp_rt_ab1 <- rt_condition_ab_test1 %>%  
+  select(-sd) %>% 
+  spread(Condition, median) %>% 
+  select('neutral','emotion')
+
+t.test(temp_rt_ab1$neutral, temp_rt_ab1$emotion, paired = TRUE, conf.level = .95)
+
+#number of E>N, E<N and E=N
+rt_ab1_emotion_medians <- rt_condition_ab_test1 %>% 
+  filter(Condition == "emotion")
+
+rt_ab1_neutral_medians <- rt_condition_ab_test1 %>% 
+  filter(Condition == "neutral") 
+
+rt_ab1_greater <- rt_ab1_emotion_medians$median > rt_ab1_neutral_medians$median
+rt_ab1_greater <- sum(rt_ab1_greater)
+
+rt_ab1_less <- rt_ab1_emotion_medians$median < rt_ab1_neutral_medians$median
+rt_ab1_less <- sum(rt_ab1_less)
+
+rt_ab1_equal <- rt_ab1_emotion_medians$median == rt_ab1_neutral_medians$median
+rt_ab1_equal <- sum(rt_ab1_equal)
+```
+There were `r rt_ab1_greater` E>N, `r rt_ab1_less` N>E and `r rt_ab1_equal` E=N in AB Test 1.
+
+
+##AB Test 1 Plots
+```{r, ab test1 rt graph}
+abtest1_rt_condition_line <- ggplot(rt_condition_ab_test1,
+                               aes(subject_number, median))+
+  geom_point(aes(color = Condition), size = 3, alpha = .6)+
+  geom_line(aes(group = subject_number))+
+  labs(title = "AB Test 1: Reaction Time for Emotional and Neutral stimuli by subject", x = "Subject Number",
+       y = "Median Accuracy")
+(abtest1_rt_condition_line <- abtest1_rt_condition_line + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)))
+
+abtest1_condition_se_rt <- Rmisc::summarySE(ab_test1, measurevar = "rt", 
+                            groupvars = c("Condition"))
+abtest1_condition_se_rt$se[1] <- ab1_e_se_rt
+abtest1_condition_se_rt$se[2] <- ab1_n_se_rt
+(abtest1_rt_condition_bar <- ggplot(rt_mean_condition_abtest1, aes(Condition, mean, fill = Condition))+
+  geom_bar(stat = "identity")+
+  geom_jitter(data = rt_condition_ab_test1, aes(x = Condition, y = median), width = .1)+
+  geom_errorbar(aes(ymin = mean - abtest1_condition_se_rt$se, ymax = mean + abtest1_condition_se_rt$se),
+                width = 0.2,
+                position=position_dodge(.9))+
+  labs(title = "AB Test 1: Reaction Time for Emotional and Neutral stimuli", 
+       x = "Condition",
+       y = "Mean Accuracy"))
+```
+
+
+##AB Test 2 Analysis
+```{r}
+temp_rt_ab2 <- rt_condition_ab_test2 %>% 
+  select(-sd) %>% 
+  spread(Condition, median) %>% 
+  select('neutral','emotion')
+
+t.test(temp_rt_ab2$neutral, temp_rt_ab2$emotion, paired = TRUE, conf.level = .95)
+
+
+#number of E>N, E<N and E=N
+rt_ab2_emotion_medians <- rt_condition_ab_test2 %>% 
+  filter(Condition == "emotion")
+
+rt_ab2_neutral_medians <- rt_condition_ab_test2 %>% 
+  filter(Condition == "neutral") 
+
+rt_ab2_greater <- rt_ab2_emotion_medians$median > rt_ab2_neutral_medians$median
+rt_ab2_greater <- sum(rt_ab2_greater)
+
+rt_ab2_less <- rt_ab2_emotion_medians$median < rt_ab2_neutral_medians$median
+rt_ab2_less <- sum(rt_ab2_less)
+
+rt_ab2_equal <- rt_ab2_emotion_medians$median == rt_ab2_neutral_medians$median
+rt_ab2_equal <- sum(rt_ab2_equal)
+```
+There were `r rt_ab2_greater` E>N, `r rt_ab2_less` N>E and `r rt_ab2_equal` E=N in AB Test 2.
+
+
+##AB Test 2 Plots
+```{r, ab test2 rt graph}
+abtest2_rt_condition_line <- ggplot(rt_condition_ab_test2,
+                               aes(subject_number, median))+
+  geom_point(aes(color = Condition), size = 3, alpha = .6)+
+  geom_line(aes(group = subject_number))+
+  labs(title = "AB Test 2: Reaction Time for Emotional and Neutral stimuli by subject", x = "Subject Number",
+       y = "Median Accuracy")
+(abtest2_rt_condition_line <- abtest2_rt_condition_line + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)))
+
+abtest2_condition_se_rt <- Rmisc::summarySE(ab_test2, measurevar = "rt", 
+                            groupvars = c("Condition"))
+abtest2_condition_se_rt$se[1] <- ab2_e_se_rt
+abtest2_condition_se_rt$se[2] <- ab2_n_se_rt
+(abtest2_rt_condition_bar <- ggplot(rt_mean_condition_abtest2, aes(Condition, mean, fill = Condition))+
+  geom_bar(stat = "identity")+
+  geom_jitter(data = rt_condition_ab_test2, aes(x = Condition, y = median), width = .1)+
+  geom_errorbar(aes(ymin = mean - abtest2_condition_se_rt$se, ymax = mean + abtest2_condition_se_rt$se),
+                width = 0.2,
+                position=position_dodge(.9))+
+  labs(title = "AB Test 2: Reaction Time for Emotional and Neutral stimuli", 
+       x = "Condition",
+       y = "Mean Accuracy"))
+```
+
+
+##AB Test 3 Analysis
+```{r}
+temp_rt_ab3 <- rt_condition_ab_test3 %>%  
+  select(-sd) %>% 
+  spread(Condition, median) %>% 
+  select('neutral','emotion')
+
+t.test(temp_rt_ab3$neutral, temp_rt_ab3$emotion, paired = TRUE, conf.level = .95)
+
+
+#number of E>N, E<N and E=N
+rt_ab3_emotion_medians <- rt_condition_ab_test3 %>% 
+  filter(Condition == "emotion")
+
+rt_ab3_neutral_medians <- rt_condition_ab_test3 %>% 
+  filter(Condition == "neutral") 
+
+rt_ab3_greater <- rt_ab3_emotion_medians$median > rt_ab3_neutral_medians$median
+rt_ab3_greater <- sum(rt_ab3_greater)
+
+rt_ab3_less <- rt_ab3_emotion_medians$median < rt_ab3_neutral_medians$median
+rt_ab3_less <- sum(rt_ab3_less)
+
+rt_ab3_equal <- rt_ab3_emotion_medians$median == rt_ab3_neutral_medians$median
+rt_ab3_equal <- sum(rt_ab3_equal)
+```
+There were `r rt_ab3_greater` E>N, `r rt_ab3_less` N>E and `r rt_ab3_equal` E=N in AB Test 3.
+
+
+##AB Test 3 Plots
+```{r, ab test3 rt graph}
+abtest3_rt_condition_line <- ggplot(rt_condition_ab_test3,
+                               aes(subject_number, median))+
+  geom_point(aes(color = Condition), size = 3, alpha = .6)+
+  geom_line(aes(group = subject_number))+
+  labs(title = "AB Test 3: Reaction Time for Emotional and Neutral stimuli by subject", x = "Subject Number",
+       y = "Median Accuracy")
+(abtest3_rt_condition_line <- abtest3_rt_condition_line + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)))
+
+abtest3_condition_se_rt <- Rmisc::summarySE(ab_test3, measurevar = "rt", 
+                            groupvars = c("Condition"))
+abtest3_condition_se_rt$se[1] <- ab3_e_se_rt
+abtest3_condition_se_rt$se[2] <- ab3_n_se_rt
+(abtest3_rt_condition_bar <- ggplot(rt_mean_condition_abtest3, aes(Condition, mean, fill = Condition))+
+  geom_bar(stat = "identity")+
+  geom_jitter(data = rt_condition_ab_test3, aes(x = Condition, y = median), width = .1)+
+  geom_errorbar(aes(ymin = mean - abtest3_condition_se_rt$se, ymax = mean + abtest3_condition_se_rt$se),
+                width = 0.2,
+                position=position_dodge(.9))+
+  labs(title = "AB Test 3: Reaction Time for Emotional and Neutral stimuli", 
+       x = "Condition",
+       y = "Mean Accuracy"))
+```
+
+
+##AC Test Analysis
+```{r}
+temp_rt_ac <- rt_condition_ac %>%  
+  select(-sd) %>%  
+  spread(Condition, median) %>% 
+  select('neutral','emotion')
+
+t.test(temp_rt_ac$neutral, temp_rt_ac$emotion, paired = TRUE, conf.level = .95)
+
+
+#number of E>N, E<N and E=N
+rt_ac_emotion_medians <- rt_condition_ac %>% 
+  filter(Condition == "emotion")
+
+rt_ac_neutral_medians <- rt_condition_ac %>% 
+  filter(Condition == "neutral") 
+
+rt_ac_greater <- rt_ac_emotion_medians$median > rt_ac_neutral_medians$median
+rt_ac_greater <- sum(rt_ac_greater)
+
+rt_ac_less <- rt_ac_emotion_medians$median < rt_ac_neutral_medians$median
+rt_ac_less <- sum(rt_ac_less)
+
+rt_ac_equal <- rt_ac_emotion_medians$median == rt_ac_neutral_medians$median
+rt_ac_equal <- sum(rt_ac_equal)
+```
+There were `r rt_ac_greater` E>N, `r rt_ac_less` N>E and `r rt_ac_equal` E=N in AC Test.
+
+
+##AC Test Plots
+```{r, ac test rt graph}
+ac_rt_condition_line <- ggplot(rt_condition_ac, 
+                               aes(subject_number, median))+
+  geom_point(aes(color = Condition), size = 3, alpha = .6)+
+  geom_line(aes(group = subject_number))+
+  labs(title = "AC Test: Reaction Time for Emotional and Neutral stimuli by subject", x = "Subject Number",
+       y = "Median Accuracy")
+(ac_rt_condition_line <- ac_rt_condition_line + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)))
+
+ac_condition_se_rt <- Rmisc::summarySE(ac, measurevar = "rt", 
+                            groupvars = c("Condition"))
+ac_condition_se_rt$se[1] <- ac_e_se_rt
+ac_condition_se_rt$se[2] <- ac_n_se_rt
+(ac_rt_condition_bar <- ggplot(rt_mean_condition_ac, aes(Condition, mean, fill = Condition))+
+  geom_bar(stat = "identity")+
+  geom_jitter(data = rt_condition_ac, aes(x = Condition, y = median), width = .1)+
+  geom_errorbar(aes(ymin = mean - ac_condition_se_rt$se, ymax = mean + ac_condition_se_rt$se),
+                width = 0.2,
+                position=position_dodge(.9))+
+  labs(title = "AC Test: Reaction Time for Emotional and Neutral stimuli", 
+       x = "Condition",
+       y = "Mean Accuracy"))
+```
+
+
+##Post Test Analysis
+###AB
+```{r}
+temp_post_rt_ab <- rt_condition_by_abbcac_posttest %>%  
+  select(-sd) %>% 
+  spread(Condition, median) %>% 
+  select('neutral','emotion') %>% 
+  filter(abbcac == 'AB')
+
+t.test(temp_post_rt_ab$neutral, temp_post_rt_ab$emotion, paired = TRUE, conf.level = .95)
+
+
+#number of E>N, E<N and E=N
+rt_posttest_ab_emotion_medians <- rt_condition_posttest_ab %>% 
+  filter(Condition == "emotion")
+
+rt_posttest_ab_neutral_medians <- rt_condition_posttest_ab %>% 
+  filter(Condition == "neutral") 
+
+rt_posttest_ab_greater <- rt_posttest_ab_emotion_medians$median > rt_posttest_ab_neutral_medians$median
+rt_posttest_ab_greater <- sum(rt_posttest_ab_greater)
+
+rt_posttest_ab_less <- rt_posttest_ab_emotion_medians$median < rt_posttest_ab_neutral_medians$median
+rt_posttest_ab_less <- sum(rt_posttest_ab_less)
+
+rt_posttest_ab_equal <- rt_posttest_ab_emotion_medians$median == rt_posttest_ab_neutral_medians$median
+rt_posttest_ab_equal <- sum(rt_posttest_ab_equal)
+```
+There were `r rt_posttest_ab_greater` E>N, `r rt_posttest_ab_less` N>E and `r rt_posttest_ab_equal` E=N in Posttest AB.
+
+
+###BC
+```{r}
+temp_post_rt_bc <- rt_condition_by_abbcac_posttest %>%  
+  select(-sd) %>% 
+  spread(Condition, median) %>% 
+  select('neutral','emotion') %>% 
+  filter(abbcac == 'BC')
+
+t.test(temp_post_rt_bc$neutral, temp_post_rt_bc$emotion, paired = TRUE, conf.level = .95)
+
+
+#number of E>N, E<N and E=N
+rt_posttest_bc_emotion_medians <- rt_condition_posttest_bc %>% 
+  filter(Condition == "emotion")
+
+rt_posttest_bc_neutral_medians <- rt_condition_posttest_bc %>% 
+  filter(Condition == "neutral") 
+
+rt_posttest_bc_greater <- rt_posttest_bc_emotion_medians$median > rt_posttest_bc_neutral_medians$median
+rt_posttest_bc_greater <- sum(rt_posttest_bc_greater)
+
+rt_posttest_bc_less <- rt_posttest_bc_emotion_medians$median < rt_posttest_bc_neutral_medians$median
+rt_posttest_bc_less <- sum(rt_posttest_bc_less)
+
+rt_posttest_bc_equal <- rt_posttest_bc_emotion_medians$median == rt_posttest_bc_neutral_medians$median
+rt_posttest_bc_equal <- sum(rt_posttest_bc_equal)
+```
+There were `r rt_posttest_bc_greater` E>N, `r rt_posttest_bc_less` N>E and `r rt_posttest_bc_equal` E=N in Posttest BC.
+
+
+##Posttest Plots
+```{r, posttest rt graph}
+posttest_rt_condition_by_abbcac_line <- ggplot(rt_condition_by_abbcac_posttest, 
+                               aes(subject_number, median))+
+  geom_point(aes(color = Condition), size = 3, alpha = .6)+
+  geom_line(aes(group = subject_number))+
+  labs(title = "Posttest: Reaction Time for Emotional and Neutral stimuli by subject", x = "Subject Number",
+       y = "Median Accuracy")+
+  facet_wrap(~abbcac)
+(posttest_rt_condition_by_abbcac_line <- posttest_rt_condition_by_abbcac_line + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)))
+
+posttest_condition_by_abbcac_se_rt <- Rmisc::summarySE(posttest, measurevar = "rt", 
+                            groupvars = c("Condition", "abbcac"))
+posttest_condition_by_abbcac_se_rt$se[1] <- ab_post_e_se_rt
+posttest_condition_by_abbcac_se_rt$se[2] <- bc_post_e_se_rt
+posttest_condition_by_abbcac_se_rt$se[3] <- ab_post_n_se_rt
+posttest_condition_by_abbcac_se_rt$se[4] <- bc_post_n_se_rt
+(posttest_rt_condition_by_abbcac_bar <- ggplot(rt_mean_condition_by_abbcac_posttest, aes(Condition, mean, fill = Condition))+
+  geom_bar(stat = "identity")+
+  geom_jitter(data = rt_condition_by_abbcac_posttest, aes(x = Condition, y = median), width = .1)+
+  geom_errorbar(aes(ymin = mean - posttest_condition_by_abbcac_se_rt$se, ymax = mean + 
+                      posttest_condition_by_abbcac_se_rt$se),
+                width = 0.2,
+                position=position_dodge(.9))+
+      labs(title = "Posttest: Reaction Time for Emotional and Neutral stimuli", x = "Condition",
+       y = "Mean Accuracy")+
+    facet_wrap(~abbcac))
+```
+
+
+
+#Reaction Time Combined Graphs
+```{r}
+#ab_tests was created for the condition combined graphs
+#Just a binded version of all AB Tests
+rt_condition_ab_tests <-  ab_tests %>% 
+  group_by(test, Condition, subject_number) %>% 
+  summarise(median = median(rt, na.rm = TRUE))
+
+rt_mean_condition_abtests <-  rt_condition_ab_tests %>% 
+  group_by(test, Condition) %>% 
+  summarise(mean = mean(median, na.rm = TRUE))
+
+rt_abtests_condition_se <- Rmisc::summarySE(ab_tests, measurevar = "rt", 
+                            groupvars = c("test", "Condition"),
+                            na.rm = TRUE)
+rt_abtests_condition_se$se[1] <- ab1_e_se_rt
+rt_abtests_condition_se$se[1] <- ab1_n_se_rt
+rt_abtests_condition_se$se[2] <- ab2_e_se_rt
+rt_abtests_condition_se$se[3] <- ab2_n_se_rt
+rt_abtests_condition_se$se[4] <- ab3_e_se_rt
+rt_abtests_condition_se$se[5] <- ab3_n_se_rt
+(abtests_rt_condition_bar <- ggplot(rt_mean_condition_abtests, aes(test, mean, fill = Condition))+
+  geom_bar(stat = "identity", position = "dodge")+
+  geom_errorbar(aes(ymin = mean - rt_abtests_condition_se$se, ymax = mean + rt_abtests_condition_se$se),
+                width = 0.2,
+                position=position_dodge(.9))+
+      labs(title = "Reaction Time for Emotional and Neutral stimuli AB Tests", x = "Condition",
+       y = "Mean Reaction Time"))
+
+#posttests was created for the condition combined graphs
+#Just a binded version of all Post test and AC
+rt_condition_posttests <-  posttests %>% 
+  group_by(test, Condition, subject_number) %>% 
+  summarise(median = median(rt, na.rm = TRUE))
+
+rt_mean_condition_posttests <-  rt_condition_posttests %>% 
+  group_by(test, Condition) %>% 
+  summarise(mean = mean(median, na.rm = TRUE))
+
+rt_posttests_condition_se <- Rmisc::summarySE(posttests, measurevar = "rt", 
+                            groupvars = c("test", "Condition"),
+                            na.rm = TRUE)
+rt_posttests_condition_se$se[1] <- ab_post_e_se_rt
+rt_posttests_condition_se$se[2] <- ab_post_n_se_rt
+rt_posttests_condition_se$se[3] <- ac_e_se_rt
+rt_posttests_condition_se$se[4] <- ac_n_se_rt
+rt_posttests_condition_se$se[5] <- bc_post_e_se_rt
+rt_posttests_condition_se$se[6] <- bc_post_n_se_rt
+(posttests_rt_condition_bar <- ggplot(rt_mean_condition_posttests, aes(test, mean, fill = Condition))+
+  geom_bar(stat = "identity", position = "dodge")+
+  geom_errorbar(aes(ymin = mean - rt_posttests_condition_se$se, ymax = mean + rt_posttests_condition_se$se),
+                width = 0.2,
+                position=position_dodge(.9))+
+  labs(title = "Reaction Time for Emotional and Neutral stimuli Final Tests", x = "Condition",
+  y = "Reaction Time"))
+```
+
+
+
+
+
+
+
+
+```{r, importing culture}
+culture <- import("EFOPA Culture.xlsx")
+
+c_abtest1 <- left_join(ab_test1, culture)
+c_abtest2 <- left_join(ab_test2, culture)
+c_abtest3 <- left_join(ab_test3, culture)
+c_ac <- left_join(ac, culture)
+c_posttest <- left_join(posttest, culture)
+```
+
+
+
+```{r, abtest1 culture}
+correct_culture_ab_test1 <- c_abtest1 %>%  
+  group_by(ethnicity, subject_number) %>%  
+  summarise(mean = mean(correct))
+
+model1 <- lm(mean ~ ethnicity, data = correct_culture_ab_test1, na.action = "na.exclude")
+
+summary1 <- summary(model1)
+
+correct_culcondition_ab_test1 <- c_abtest1 %>% 
+  group_by(Condition, ethnicity, subject_number) %>% 
+  summarise(mean = mean(correct))
+
+model2 <- lm(mean ~ ethnicity + Condition, data = correct_culcondition_ab_test1, na.action = "na.exclude")
+
+summary2 <- summary(model2)
+
+mean_culture_ab_test1 <- c_abtest1 %>% 
+  group_by(ethnicity) %>% 
+  summarise(mean = mean(correct))
+
+mean_culcondition_ab_test1 <- c_abtest1 %>% 
+  group_by(ethnicity, Condition) %>% 
+  summarise(mean = mean(correct))
+
+abtest1_culture_line <- ggplot(correct_culture_ab_test1, aes(x = subject_number, y = mean))+
+  geom_point(aes(color = ethnicity), size = 3, alpha = .6)+
+  geom_line(aes(group = subject_number))+
+  labs(title = "AB Test 1: Accuracy for ethnicity of stimuli by subject", x = "Subject Number",
+       y = "Mean Accuracy")
+abtest1_culture_line <- abtest1_culture_line + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+abtest1_culture_bar <- ggplot(mean_culture_ab_test1, aes(x = ethnicity, y = mean, fill = ethnicity))+
+  geom_bar(stat = "identity")+
+  geom_jitter(data = correct_culture_ab_test1, aes(x = ethnicity, y = mean),width = .1)+
+      labs(title = "AB Test 1: Accuracy for ethnicity of stimuli", 
+           x = "Condition",
+       y = "Mean Accuracy")
+
+abtest1_culcondition_line <- ggplot(correct_culcondition_ab_test1, aes(x = subject_number, y = mean))+
+  geom_point(aes(color = ethnicity), size = 3, alpha = .6)+
+  geom_line(aes(group = subject_number))+
+  labs(title = "AB Test 1: Accuracy for ethnicity of stimuli by condition and subject", x = "Subject Number",
+       y = "Mean Accuracy")+
+  facet_wrap(~Condition)
+abtest1_culcondition_line <- abtest1_culcondition_line + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+abtest1_culcondition_bar <- ggplot(mean_culcondition_ab_test1, aes(x = ethnicity, y = mean, fill = ethnicity))+
+  geom_bar(stat = "identity")+
+  geom_jitter(data = correct_culcondition_ab_test1, aes(x = ethnicity, y = mean),width = .1)+
+      labs(title = "AB Test 1: Accuracy for Ethnicity of stimuli by condition", 
+           x = "Condition",
+       y = "Mean Accuracy")+
+  facet_wrap(~Condition)
+```
+
+
+
+```{r, abtest2 culture}
+correct_culture_ab_test2 <- c_abtest2 %>% 
+  group_by(ethnicity, subject_number) %>% 
+  summarise(mean = mean(correct))
+
+correct_culcondition_ab_test2 <- c_abtest2 %>% 
+  group_by(Condition, ethnicity, subject_number) %>% 
+  summarise(mean = mean(correct))
+
+mean_culture_ab_test2 <- c_abtest2 %>% 
+  group_by(ethnicity) %>% 
+  summarise(mean = mean(correct))
+
+mean_culcondition_ab_test2 <- c_abtest2 %>% 
+  group_by(ethnicity, Condition) %>% 
+  summarise(mean = mean(correct))
+
+abtest2_culture_line <- ggplot(correct_culture_ab_test2, aes(x = subject_number, y = mean))+
+  geom_point(aes(color = ethnicity), size = 3, alpha = .6)+
+  geom_line(aes(group = subject_number))+
+  labs(title = "AB Test 2: Accuracy for ethnicity of stimuli by subject", x = "Subject Number",
+       y = "Mean Accuracy")
+abtest2_culture_line <- abtest2_culture_line + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+abtest2_culture_bar <- ggplot(mean_culture_ab_test2, aes(x = ethnicity, y = mean, fill = ethnicity))+
+  geom_bar(stat = "identity")+
+  geom_jitter(data = correct_culture_ab_test2, aes(x = ethnicity, y = mean),width = .1)+
+      labs(title = "AB Test 2: Accuracy for ethnicity of stimuli", 
+           x = "Condition",
+       y = "Mean Accuracy")
+
+abtest2_culcondition_line <- ggplot(correct_culcondition_ab_test2, aes(x = subject_number, y = mean))+
+  geom_point(aes(color = ethnicity), size = 3, alpha = .6)+
+  geom_line(aes(group = subject_number))+
+  labs(title = "AB Test 2: Accuracy for ethnicity of stimuli by condition and subject", x = "Subject Number",
+       y = "Mean Accuracy")+
+  facet_wrap(~Condition)
+abtest2_culcondition_line <- abtest2_culcondition_line + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+abtest2_culcondition_bar <- ggplot(mean_culcondition_ab_test2, aes(x = ethnicity, y = mean, fill = ethnicity))+
+  geom_bar(stat = "identity")+
+  geom_jitter(data = correct_culcondition_ab_test2, aes(x = ethnicity, y = mean),width = .1)+
+      labs(title = "AB Test 2: Accuracy for Ethnicity of stimuli by condition", 
+           x = "Condition",
+       y = "Mean Accuracy")+
+  facet_wrap(~Condition)
+```
+
+
+
+```{r, abtest3 culture}
+correct_culture_ab_test3 <- c_abtest3 %>% 
+  group_by(ethnicity, subject_number) %>% 
+  summarise(mean = mean(correct))
+
+correct_culcondition_ab_test3 <- c_abtest3 %>% 
+  group_by(Condition, ethnicity, subject_number) %>% 
+  summarise(mean = mean(correct))
+
+mean_culture_ab_test3 <- c_abtest3 %>% 
+  group_by(ethnicity) %>% 
+  summarise(mean = mean(correct))
+
+mean_culcondition_ab_test3 <- c_abtest3 %>% 
+  group_by(ethnicity, Condition) %>% 
+  summarise(mean = mean(correct))
+
+abtest3_culture_line <- ggplot(correct_culture_ab_test3, aes(x = subject_number, y = mean))+
+  geom_point(aes(color = ethnicity), size = 3, alpha = .6)+
+  geom_line(aes(group = subject_number))+
+  labs(title = "AB Test 3: Accuracy for ethnicity of stimuli by subject", x = "Subject Number",
+       y = "Mean Accuracy")
+abtest3_culture_line <- abtest3_culture_line + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+abtest3_culture_bar <- ggplot(mean_culture_ab_test3, aes(x = ethnicity, y = mean, fill = ethnicity))+
+  geom_bar(stat = "identity")+
+  geom_jitter(data = correct_culture_ab_test3, aes(x = ethnicity, y = mean),width = .1)+
+      labs(title = "AB Test 3: Accuracy for ethnicity of stimuli", 
+           x = "Condition",
+       y = "Mean Accuracy")
+
+abtest3_culcondition_line <- ggplot(correct_culcondition_ab_test3, aes(x = subject_number, y = mean))+
+  geom_point(aes(color = ethnicity), size = 3, alpha = .6)+
+  geom_line(aes(group = subject_number))+
+  labs(title = "AB Test 3: Accuracy for ethnicity of stimuli by condition and subject", x = "Subject Number",
+       y = "Mean Accuracy")+
+  facet_wrap(~Condition)
+abtest3_culcondition_line <- abtest3_culcondition_line + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+abtest3_culcondition_bar <- ggplot(mean_culcondition_ab_test3, aes(x = ethnicity, y = mean, fill = ethnicity))+
+  geom_bar(stat = "identity")+
+  geom_jitter(data = correct_culcondition_ab_test3, aes(x = ethnicity, y = mean),width = .1)+
+      labs(title = "AB Test 3: Accuracy for Ethnicity of stimuli by condition", 
+           x = "Condition",
+       y = "Mean Accuracy")+
+  facet_wrap(~Condition)
+```
+
+
+
+```{r, actest culture}
+correct_culture_ac <- c_ac %>% 
+  group_by(ethnicity, subject_number) %>% 
+  summarise(mean = mean(correct))
+
+correct_culcondition_ac <- c_ac %>% 
+  group_by(Condition, ethnicity, subject_number) %>% 
+  summarise(mean = mean(correct))
+
+mean_culture_ac <- c_ac %>% 
+  group_by(ethnicity) %>% 
+  summarise(mean = mean(correct))
+
+mean_culcondition_ac <- c_ac %>% 
+  group_by(ethnicity, Condition) %>% 
+  summarise(mean = mean(correct))
+
+ac_culture_line <- ggplot(correct_culture_ac, aes(x = subject_number, y = mean))+
+  geom_point(aes(color = ethnicity), size = 3, alpha = .6)+
+  geom_line(aes(group = subject_number))+
+  labs(title = "AC Test: Accuracy for ethnicity of stimuli by subject", x = "Subject Number",
+       y = "Mean Accuracy")
+ac_culture_line <- ac_culture_line + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+ac_culture_bar <- ggplot(mean_culture_ac, aes(x = ethnicity, y = mean, fill = ethnicity))+
+  geom_bar(stat = "identity")+
+  geom_jitter(data = correct_culture_ac, aes(x = ethnicity, y = mean),width = .1)+
+      labs(title = "AC Test: Accuracy for ethnicity of stimuli", 
+           x = "Condition",
+       y = "Mean Accuracy")
+
+ac_culcondition_line <- ggplot(correct_culcondition_ac, aes(x = subject_number, y = mean))+
+  geom_point(aes(color = ethnicity), size = 3, alpha = .6)+
+  geom_line(aes(group = subject_number))+
+  labs(title = "AC Test: Accuracy for ethnicity of stimuli by condition and subject", x = "Subject Number",
+       y = "Mean Accuracy")+
+  facet_wrap(~Condition)
+ac_culcondition_line <- ac_culcondition_line + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+ac_culcondition_bar <- ggplot(mean_culcondition_ac, aes(x = ethnicity, y = mean, fill = ethnicity))+
+  geom_bar(stat = "identity")+
+  geom_jitter(data = correct_culcondition_ac, aes(x = ethnicity, y = mean),width = .1)+
+      labs(title = "AC Test: Accuracy for ethnicity of stimuli by condition", 
+           x = "Condition",
+       y = "Mean Accuracy")+
+  facet_wrap(~Condition)
+```
+
+
+
+```{r, posttest ab culture}
+c_posttest_ab <- c_posttest %>% 
+  filter(abbcac == "AB")
+
+correct_culture_posttest_ab <- c_posttest_ab %>% 
+  group_by(ethnicity, subject_number) %>% 
+  summarise(mean = mean(correct))
+
+correct_culcondition_posttest_ab <- c_posttest_ab %>% 
+  group_by(Condition, ethnicity, subject_number) %>% 
+  summarise(mean = mean(correct))
+
+mean_culture_posttest_ab <- c_posttest_ab %>% 
+  group_by(ethnicity) %>% 
+  summarise(mean = mean(correct))
+
+mean_culcondition_posttest_ab <- c_posttest_ab %>% 
+  group_by(ethnicity, Condition) %>% 
+  summarise(mean = mean(correct))
+
+posttest_ab_culture_line <- ggplot(correct_culture_posttest_ab, aes(x = subject_number, y = mean))+
+  geom_point(aes(color = ethnicity), size = 3, alpha = .6)+
+  geom_line(aes(group = subject_number))+
+  labs(title = "Posttest AB: Accuracy for ethnicity of stimuli by subject", x = "Subject Number",
+       y = "Mean Accuracy")
+posttest_ab_culture_line <- posttest_ab_culture_line + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+posttest_ab_culture_bar <- ggplot(mean_culture_posttest_ab, aes(x = ethnicity, y = mean, fill = ethnicity))+
+  geom_bar(stat = "identity")+
+  geom_jitter(data = correct_culture_posttest_ab, aes(x = ethnicity, y = mean),width = .1)+
+      labs(title = "Posttest AB: Accuracy for ethnicity of stimuli", 
+           x = "Condition",
+       y = "Mean Accuracy")
+
+posttest_ab_culcondition_line <- ggplot(correct_culcondition_posttest_ab, aes(x = subject_number, y = mean))+
+  geom_point(aes(color = ethnicity), size = 3, alpha = .6)+
+  geom_line(aes(group = subject_number))+
+  labs(title = "Posttest AB: Accuracy for ethnicity of stimuli by condition and subject", x = "Subject Number",
+       y = "Mean Accuracy")+
+  facet_wrap(~Condition)
+posttest_ab_culcondition_line <- posttest_ab_culcondition_line + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+posttest_ab_culcondition_bar <- ggplot(mean_culcondition_posttest_ab, aes(x = ethnicity, y = mean, fill = ethnicity))+
+  geom_bar(stat = "identity")+
+  geom_jitter(data = correct_culcondition_posttest_ab, aes(x = ethnicity, y = mean),width = .1)+
+      labs(title = "Posttest AB: Accuracy for Ethnicity of stimuli by condition", 
+           x = "Condition",
+       y = "Mean Accuracy")+
+  facet_wrap(~Condition)
+```
+
+
+
+```{r, posttest bc culture}
+c_posttest_bc <- c_posttest %>% 
+  filter(abbcac == "BC")
+
+correct_culture_posttest_bc <- c_posttest_bc %>% 
+  group_by(ethnicity, subject_number) %>% 
+  summarise(mean = mean(correct))
+
+correct_culcondition_posttest_bc <- c_posttest_bc %>% 
+  group_by(Condition, ethnicity, subject_number) %>% 
+  summarise(mean = mean(correct))
+
+mean_culture_posttest_bc <- c_posttest_bc %>% 
+  group_by(ethnicity) %>% 
+  summarise(mean = mean(correct))
+
+mean_culcondition_posttest_bc <- c_posttest_bc %>% 
+  group_by(ethnicity, Condition) %>% 
+  summarise(mean = mean(correct))
+
+posttest_bc_culture_line <- ggplot(correct_culture_posttest_bc, aes(x = subject_number, y = mean))+
+  geom_point(aes(color = ethnicity), size = 3, alpha = .6)+
+  geom_line(aes(group = subject_number))+
+  labs(title = "Posttest BC: Accuracy for ethnicity of stimuli by subject", x = "Subject Number",
+       y = "Mean Accuracy")
+posttest_bc_culture_line <- posttest_bc_culture_line + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+posttest_bc_culture_bar <- ggplot(mean_culture_posttest_bc, aes(x = ethnicity, y = mean, fill = ethnicity))+
+  geom_bar(stat = "identity")+
+  geom_jitter(data = correct_culture_posttest_bc, aes(x = ethnicity, y = mean),width = .1)+
+      labs(title = "Posttest BC: Accuracy for ethnicity of stimuli", 
+           x = "Condition",
+       y = "Mean Accuracy")
+
+posttest_bc_culcondition_line <- ggplot(correct_culcondition_posttest_bc, aes(x = subject_number, y = mean))+
+  geom_point(aes(color = ethnicity), size = 3, alpha = .6)+
+  geom_line(aes(group = subject_number))+
+  labs(title = "Posttest BC: Accuracy for ethnicity of stimuli by condition and subject", x = "Subject Number",
+       y = "Mean Accuracy")+
+  facet_wrap(~Condition)
+posttest_bc_culcondition_line <- posttest_bc_culcondition_line + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+posttest_bc_culcondition_bar <- ggplot(mean_culcondition_posttest_bc, aes(x = ethnicity, y = mean, fill = ethnicity))+
+  geom_bar(stat = "identity")+
+  geom_jitter(data = correct_culcondition_posttest_bc, aes(x = ethnicity, y = mean),width = .1)+
+      labs(title = "Posttest BC: Accuracy for Ethnicity of stimuli by condition", 
+           x = "Condition",
+       y = "Mean Accuracy")+
+  facet_wrap(~Condition)
+```
+
